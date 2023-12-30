@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./style.scss">
+    <title>Vite App</title>
+  </head>
+  <body>
+
+    <nav class="navbar">
+    <div class="logo">
+      <p>BulletRushh</p>
+    </div>
+    <div class="auth">
+      <button class="authenticate-button"><p>sign in/up</p></button>
+      <button class="profile">
+        <div class="profile-color"></div>
+        <p class="profile-name">Guest</p>
+      </button>
+    </div>
+    </nav>
+    <div class="room-buttons">
+      <button class="createRoom"><p>Create Room</p></button>
+      <button class="joinRoom"><p>Join Room</p></button>
+    </div>
+
+    <div class="authModal">
+
+     <form id="signupForm">
+      <p class="heading">Sign Up</p>
+      <div class="field-container">
+      <label for="signup-name">Name</label>
+      <input type="text" id="signup-name" name="name" required>
+      </div>
+
+      <div class="field-container">
+      <label for="signup-email">Email</label>
+      <input type="email" id="signup-email" name="email" required>
+      </div>
+
+      <div class="field-container">
+      <label for="signup-password">Password</label>
+      <input type="password" id="signup-password" name="password" required>
+      </div>
+
+      <button type="submit">
+        <div class="signup-spinner"></div>
+        <p>sign up</p>
+      </button>
+    </form>
+
+    <form id="loginForm">
+      <p class="heading">Login</p>
+      <div class="field-container">
+      <label for="login-email">Email</label>
+      <input type="email" id="login-email" name="email" required>
+      </div>
+
+      <div class="field-container">
+      <label for="login-password">Password</label>
+      <input type="password" id="login-password" name="password" required>
+      </div>
+
+      <button type="submit">
+        <div class="login-spinner"></div>
+        <p>login</p>
+      </button>
+    </form>
+
+    <div class="form-toggle">
+      <p class="form-toggle-text">Already have an account?</p>
+      <button class="form-toggle-button">login</button>
+    </div>
+
+
+
+    </div>
+    <canvas id="aimingCanvas"></canvas>
+    <script defer type="module" src="./src/gameLogic.js"></script>
+    <script defer type="module" src="./src/auth.js"></script>
+  </body>
+</html>
