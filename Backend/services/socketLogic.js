@@ -1,14 +1,14 @@
 import { set } from "mongoose";
 
-const bulletSpeed = 5;
-const playerSpeed = 10;
-const bulletRadius = 5;
-const playerRadius = 10;
-let bulletId = 0;
 
 function initiateSocketLogic(io) {
   const backendPlayers = {};
   const backendBullets = {};
+  const bulletSpeed = 5;
+const playerSpeed = 10;
+const bulletRadius = 5;
+const playerRadius = 10;
+let bulletId = 0;
 
   io.on("connection", (socket) => {
     console.log("inside connection");
@@ -26,6 +26,10 @@ function initiateSocketLogic(io) {
 
       if (!backendPlayers[roomId]) {
         backendPlayers[roomId] = {};
+      }
+
+      if (!backendBullets[roomId]) {
+        backendBullets[roomId] = {};
       }
 
       backendPlayers[roomId][socket.id] = {
@@ -52,6 +56,8 @@ function initiateSocketLogic(io) {
         socket.emit("roomError", { message: "A player with this ID already exists in the room." });
         return;
       }
+
+      
 
       socket.join(roomId);
       currentRoom = roomId;
@@ -89,6 +95,26 @@ function initiateSocketLogic(io) {
         // io.in(currentRoom).emit("gameState", backendPlayers[currentRoom]);
       });
 
+    socket.on("addBullet", ({ x, y, angle }) => {
+        bulletId++;
+        const velocity = {
+            x: Math.cos(angle) * bulletSpeed,
+            y: Math.sin(angle) * bulletSpeed,
+        };
+        const updatedBullet = {
+            x: x,
+            y: y,
+            angle: angle,
+            radius: bulletRadius,
+            color: backendPlayers[currentRoom][socket.id]?.color,
+            velocity: velocity,
+            playerId: socket.id,
+        };
+    
+        backendBullets[currentRoom][bulletId] = updatedBullet;
+        console.log(backendBullets);
+    });  
+
     socket.on("disconnect", () => {
       console.log("inside disconnect");
       if (currentRoom && backendPlayers[currentRoom][socket.id]) {
@@ -99,9 +125,53 @@ function initiateSocketLogic(io) {
 
     setInterval(() => {
         io.in(currentRoom).emit("gameState", backendPlayers[currentRoom]);
+        updateBulletsPosition();
+        io.in(currentRoom).emit("updateBullets", backendBullets[currentRoom]);
     }, 1000/60);
-  });
+
+    function updateBulletsPosition() {
+        for (const bulletId in backendBullets[currentRoom]) {
+          backendBullets[currentRoom][bulletId].x += backendBullets[currentRoom][bulletId].velocity.x;
+          backendBullets[currentRoom][bulletId].y += backendBullets[currentRoom][bulletId].velocity.y;
+    
+          //boundary detection
+    
+          if (
+            backendBullets[currentRoom][bulletId].x >= 1024 ||
+            backendBullets[currentRoom][bulletId].x <= 10 ||
+            backendBullets[currentRoom][bulletId].y >= 590 ||
+            backendBullets[currentRoom][bulletId].y <= 5
+          ) {
+            delete backendBullets[currentRoom][bulletId];
+            continue;
+          }
+    
+          //player and bullet collision detection
+    
+          for (const playerId in backendPlayers[currentRoom]) {
+            const backEndPlayer = backendPlayers[currentRoom][playerId];
+    
+            const DISTANCE = Math.hypot(
+              backendBullets[currentRoom][bulletId].x - backEndPlayer.x,
+              backendBullets[currentRoom][bulletId].y - backEndPlayer.y
+            );
+    
+            //player Bullet collision detection
+            if (
+              DISTANCE < 5 + backEndPlayer.radius &&
+              backendBullets[currentRoom][bulletId].playerId !== playerId
+            ) {
+              delete backendBullets[currentRoom][bulletId];
+              delete backendPlayers[currentRoom][playerId];
+              break;
+            }
+          }
+        }
+      }
+    });
 }
+
+
 
 //   io.on("connect", (socket) => {
 //     console.log("inside connect");
@@ -136,46 +206,7 @@ function initiateSocketLogic(io) {
 //       console.log(backendBullets);
 //     });
 
-//     //server reconcilliation
-//     socket.on("keydown", (keycode, requestNumber) => {
-//       backendPlayers[socket.id].requestNumber = requestNumber;
-//       switch (keycode) {
-//         case "ArrowUp":
-//           backendPlayers[socket.id].y -= playerSpeed;
-//           break;
-//         case "ArrowDown":
-//           backendPlayers[socket.id].y += playerSpeed;
-//           break;
-//         case "ArrowLeft":
-//           backendPlayers[socket.id].x -= playerSpeed;
-//           break;
-//         case "ArrowRight":
-//           backendPlayers[socket.id].x += playerSpeed;
-//           break;
-//       }
-//     });
 
-//     socket.on("createRoom", (roomId) => {
-//       socket.join(roomId);
-//       socket.emit("roomCreated", roomId);
-//     });
-
-//     socket.on("joinRoom", (roomId) => {
-//       const rooms = io.sockets.adapter.rooms;
-//       if (rooms.has(roomId)) {
-//         socket.join(roomId);
-//         socket.emit("roomJoined", roomId);
-//       } else {
-//         socket.emit("roomNotFound");
-//       }
-//     });
-
-//     socket.on("disconnect", () => {
-//       console.log("inside disconnect");
-//       delete backendPlayers[socket.id];
-//       io.emit("playerLeft", socket.id);
-//     });
-//   });
 
 //   function updateBulletsPosition() {
 //     for (const bulletId in backendBullets) {
