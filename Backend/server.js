@@ -3,13 +3,15 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { initiateSocketLogic } from './services/socketLogic.js'
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { initiateMongooseConnection } from "./Config/initializeMongoose.js";
 import dotenv from "dotenv";
 import { validateUserDetails } from './middlewares/Register/validateUserDetails.js'
 import { hashUserPassword } from './middlewares/Register/hashUserPassword.js'
 import { addUserToDatabase } from './middlewares/Register/addUserToDatabase.js'
 import { createJsonToken } from './middlewares/EmailVerification/createJsonToken.js'
-
+import { verifyUserEmail } from './middlewares/EmailVerification/verifyUserEmail.js'
+import { verifyToken } from './middlewares/Login/verifyToken.js'
 
 const app = express();
 const httpServer = createServer();
@@ -24,6 +26,7 @@ app.use(
     origin: "http://localhost:5173",
   })
 );
+app.use(cookieParser());
 dotenv.config();
 
 initiateSocketLogic(io);
@@ -35,14 +38,20 @@ app.post(
   validateUserDetails,
   hashUserPassword,
   addUserToDatabase,
-  createJsonToken,
   (req, res, next) => {
-    console.log("inside register route");
+
+    res.status(200);
   }
 );
 
+app.get('/verify', verifyUserEmail, createJsonToken, (req, res, next) => {
+console.log("verified successfully");
+})
 
-app.post("/login", )
+app.post("/login", verifyToken, (req, res, next) => {
+    console.log("user token verified successflly");
+    res.status(200).json(req.user);
+})
 
 app.use((err, req, res, next) => {
   console.log("error is: ", err);
