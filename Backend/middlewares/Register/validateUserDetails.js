@@ -1,17 +1,18 @@
-import { userSchema } from '../../Config/schemas.js'
+import { userSchema } from '../../config/schemas.js';
 
 function validateUserDetails(req, res, next) {
-    console.log("inside validation", req.body);
+    console.log("inside validateUserDetails", req.body);
     try {
       const userData = req.body;
       userSchema.parse(userData);
-      req.validatedUserData = userData;
+      userData.active = false;
+      req.updatedUserData = userData;
+      console.log("user data validated successfully: ", userData);
       next();
     } catch (error) {
-      console.log(error.message);
+      console.log("error while validating user data: ", error.message);
       next(error.message);
     }
-    console.log("ended handleUserInput")
   }
 
   export { validateUserDetails };

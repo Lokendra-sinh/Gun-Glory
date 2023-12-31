@@ -10,20 +10,51 @@
   <body>
 
     <nav class="navbar">
-    <div class="logo">
-      <p>BulletRushh</p>
-    </div>
-    <div class="auth">
-      <button class="authenticate-button"><p>sign in/up</p></button>
-      <button class="profile">
-        <div class="profile-color"></div>
-        <p class="profile-name">Guest</p>
-      </button>
-    </div>
+      <h1 class="logo">GunGlory</h1>
+
+      <div class="navbar-right-buttons">
+        <Button class="create-room-button">
+          Create Room
+        </Button>
+        <Button class="join-room-button">
+          Join Room
+        </Button>
+        <div class="auth">
+          <Button class="auth-button">
+            sign in/up
+          </Button>
+          <Button class="guest-button">
+            Guest
+          </Button>
+        </div>
+      </div>
+
     </nav>
-    <div class="room-buttons">
-      <button class="createRoom"><p>Create Room</p></button>
-      <button class="joinRoom"><p>Join Room</p></button>
+
+    <div class="welcome-modal">
+      <div class="welcome-text">
+        <h2>Welcome to GunGlory</h2>
+        <p>Get ready for an exciting multiplayer experience. Log in to Create/join a room and start playing!</p>
+      </div>
+      <button class="modal-guest-button">Play as a Guest</button>
+    </div>
+
+    <div class="create-room-modal">
+      <h2>Create Room</h2>
+      <div class="create-room-body">
+        <p>Please enter a name for your room:</p>
+       <input class="create-room-modal-input" type="text" placeholder="shooter" />
+       <button class="create-room-modal-button">Create Room</button>
+      </div>
+    </div>
+
+    <div class="join-room-modal">
+      <h2>Join Room</h2>
+      <div class="join-room-body">
+        <p>Please enter the name of the room you want to join:</p>
+       <input class="join-room-modal-input" type="text" placeholder="xyz" />
+       <button class="join-room-modal-button">Join Room</button>
+      </div>
     </div>
 
     <div class="authModal">
@@ -77,8 +108,19 @@
 
 
     </div>
-    <canvas id="aimingCanvas"></canvas>
-    <script defer type="module" src="./src/gameLogic.js"></script>
-    <script defer type="module" src="./src/auth.js"></script>
+
+    <div class="emailModal">
+      <h3>Verify Your Email</h3>
+      <p>A verification email has been sent to your email address. To complete the verification process, please click the verification link in the email.</p>
+      <p>You may now close this tab!</p>
+      <button>
+        <p>Resend Verification Email</p>
+      </button>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script defer src="./src/init.js"></script>
+    <script type="module" src="./src/room.js"></script>
+    <script type="module" src="./src/gameLogic.js"></script>
+    <script type="module" src="./src/auth.js"></script>
   </body>
 </html>

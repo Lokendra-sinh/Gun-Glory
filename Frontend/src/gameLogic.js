@@ -1,228 +1,206 @@
-import io from "socket.io-client";
-import gsap from 'gsap';
+// // import io from "socket.io-client";
+// import gsap from 'gsap';
 
-export const socket = io("http://localhost:3000");
+// // const socket = io("http://localhost:3000");
 
-const createRoomBtn = document.querySelector('.createRoom');
-const joinRoomBtn = document.querySelector('.joinRoom');
+// // const canvas = document.getElementById("canvas");
+// const ctx = canvas.getContext("2d");
+// const dpi = window.devicePixelRatio || 1;
+// canvas.width = 1024;
+// canvas.height = 576;
+// ctx.scale(dpi, dpi);
 
-createRoomBtn.addEventListener('click', () => {
-  socket.emit('createRoom', 'roomA');
-})
+// const frontendPlayers = {};
+// const frontendBullets = {};
+// const playerRequests = [];
+// let requestNumber = 0;
+// const playerSpeed = 10;
+// const t = 0.5;
+// const keys = [];
 
-joinRoomBtn.addEventListener('click', () => {
-  socket.emit('joinRoom', 'roomA');
-})
+// socket.on("updateFrontendPlayers", (backendPlayers) => {
+//   for (const id in backendPlayers) {
+//     const backendPlayer = backendPlayers[id];
+//     if (!frontendPlayers[id]) {
+//       frontendPlayers[id] = backendPlayer;
+//     } else if (frontendPlayers[id]) {
+//       if (id === socket.id) {
+//         const lastProcessedRequestIndex = playerRequests.findIndex(
+//           (request) => {
+//             return request.requestNumber === backendPlayer.requestNumber;
+//           }
+//         );
 
-const canvas = document.getElementById("aimingCanvas");
-const ctx = canvas.getContext("2d");
-const dpi = window.devicePixelRatio || 1;
-canvas.width = 1000;
-canvas.height = 600;
-ctx.scale(dpi, dpi);
+//         if (lastProcessedRequestIndex > -1) {
+//           playerRequests.splice(0, lastProcessedRequestIndex + 1);
 
-const frontendPlayers = {};
-const frontendBullets = {};
-const playerRequests = [];
-let requestNumber = 0;
-const playerSpeed = 10;
-const t = 0.5;
-const keys = [];
+//           playerRequests.forEach((request) => {
+//             frontendPlayers[id].x += request.vx;
+//             frontendPlayers[id].y += request.vy;
+//           });
+//         }
+//       } else {
 
-socket.on("updateFrontendPlayers", (backendPlayers) => {
-  for (const id in backendPlayers) {
-    const backendPlayer = backendPlayers[id];
-    if (!frontendPlayers[id]) {
-      frontendPlayers[id] = backendPlayer;
-    } else if (frontendPlayers[id]) {
-      if (id === socket.id) {
-        const lastProcessedRequestIndex = playerRequests.findIndex(
-          (request) => {
-            return request.requestNumber === backendPlayer.requestNumber;
-          }
-        );
+//         //apply interpolation for smooth animation
+//         // frontendPlayers[id].x = lerp(frontendPlayers[id].x, backendPlayer.x, t);
+//         // frontendPlayers[id].y = lerp(frontendPlayers[id].y, backendPlayer.y, t);
 
-        if (lastProcessedRequestIndex > -1) {
-          playerRequests.splice(0, lastProcessedRequestIndex + 1);
+//         gsap.to(frontendPlayers[id], {
+//           duration: 0.2, // Adjust the duration as needed
+//           x: backendPlayer.x,
+//           y: backendPlayer.y,
+//           ease: 'power1.out', // Linear ease-out
+//         });
+//       }
+//     }
+//   }
 
-          playerRequests.forEach((request) => {
-            frontendPlayers[id].x += request.vx;
-            frontendPlayers[id].y += request.vy;
-          });
-        }
-      } else {
+//   //deleting frontend players
 
-        //apply interpolation for smooth animation
-        // frontendPlayers[id].x = lerp(frontendPlayers[id].x, backendPlayer.x, t);
-        // frontendPlayers[id].y = lerp(frontendPlayers[id].y, backendPlayer.y, t);
+//   for (const id in frontendPlayers) {
+//     if (!backendPlayers[id]) {
+//       delete frontendPlayers[id]
+//     }
+//   }
 
-        gsap.to(frontendPlayers[id], {
-          duration: 0.2, // Adjust the duration as needed
-          x: backendPlayer.x,
-          y: backendPlayer.y,
-          ease: 'power1.out', // Linear ease-out
-        });
-      }
-    }
-  }
+// });
 
-  //deleting frontend players
+// socket.on('updateBullets', (bullets) => {
+//   console.log("bullets are: ", bullets);
 
-  for (const id in frontendPlayers) {
-    if (!backendPlayers[id]) {
-      delete frontendPlayers[id]
-    }
-  }
+//   for(const bulletId in frontendBullets){
+//     if(!bullets[bulletId]){
+//       delete frontendBullets[bulletId];
+//       // continue;
+//     }
+//   }
 
-});
+//   for(const id in bullets){
+//     if(!frontendBullets[id]){
+//       frontendBullets[id] = bullets[id];
+//     } else {
+//       frontendBullets[id].x += frontendBullets[id].velocity.x;
+//       frontendBullets[id].y += frontendBullets[id].velocity.y;
+//     }
+//   }
+// })
 
-socket.on('updateBullets', (bullets) => {
-  console.log("bullets are: ", bullets);
 
-  for(const bulletId in frontendBullets){
-    if(!bullets[bulletId]){
-      delete frontendBullets[bulletId];
-      // continue;
-    }
-  }
+// function lerp(start, end, t){
+//   return start + (end -start) * t;
+// }
 
-  for(const id in bullets){
-    if(!frontendBullets[id]){
-      frontendBullets[id] = bullets[id];
-    } else {
-      frontendBullets[id].x += frontendBullets[id].velocity.x;
-      frontendBullets[id].y += frontendBullets[id].velocity.y;
-    }
-  }
-})
+// socket.on("playerLeft", (playerId) => {
+//   delete frontendPlayers[playerId];
+// });
 
-socket.on('roomCreated', (roomName) => {
-  console.log(`Room created: ${roomName}`);
-});
+// function animate() {
+//   requestAnimationFrame(animate);
+//   ctx.fillStyle = "rgba(0,0,0,1)";
+//   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-socket.on('roomJoined', (roomName) => {
-  console.log(`Joined room: ${roomName}`);
-});
+//   for (const id in frontendPlayers) {
+//     const player = frontendPlayers[id];
+//     // console.log("player is: ", player);
+//     drawPlayer(player);
+//   }
 
-socket.on('roomNotFound', () => {
-  console.log('Room not found');
-});
+//   for(const id in frontendBullets){
+//     const bullet = frontendBullets[id];
+//     console.log("bullet is: ", bullet);
+//     drawBullet(bullet);
+//   }
 
-function lerp(start, end, t){
-  return start + (end -start) * t;
-}
+//   // if(!frontendPlayers[socket.id]){
+//   //   window.location.reload();
+//   // }
+// }
 
-socket.on("playerLeft", (playerId) => {
-  delete frontendPlayers[playerId];
-});
+// animate();
 
-function animate() {
-  requestAnimationFrame(animate);
-  ctx.fillStyle = "rgba(0,0,0,1)";
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+// function drawPlayer({ x, y, radius, color }) {
+//   ctx.beginPath();
+//   ctx.shadowColor = color;
+//   ctx.shadowBlur = 30;
+//   ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+//   ctx.fillStyle = color;
+//   ctx.fill();
+//   ctx.closePath();
+// }
 
-  for (const id in frontendPlayers) {
-    const player = frontendPlayers[id];
-    // console.log("player is: ", player);
-    drawPlayer(player);
-  }
+// function drawBullet({ x, y, radius, color }) {
+//   ctx.beginPath();
+//   ctx.arc(x, y, radius, 0, Math.PI * 2, false);
+//   ctx.fillStyle = color;
+//   ctx.fill();
+//   ctx.closePath();
+// }
 
-  for(const id in frontendBullets){
-    const bullet = frontendBullets[id];
-    console.log("bullet is: ", bullet);
-    drawBullet(bullet);
-  }
+// function updatePlayerPosition() {
+//   if (keys["ArrowUp"]) {
+//     requestNumber++;
+//     playerRequests.push({ requestNumber, vx: 0, vy: -playerSpeed });
+//     frontendPlayers[socket.id].y -= playerSpeed;
+//     socket.emit("keydown", "ArrowUp", requestNumber);
+//   }
 
-  // if(!frontendPlayers[socket.id]){
-  //   window.location.reload();
-  // }
-}
+//   if (keys["ArrowDown"]) {
+//     requestNumber++;
+//     playerRequests.push({ requestNumber, vx: 0, vy: playerSpeed });
+//     frontendPlayers[socket.id].y += playerSpeed;
+//     socket.emit("keydown", "ArrowDown", requestNumber);
+//   }
 
-animate();
+//   if (keys["ArrowLeft"]) {
+//     requestNumber++;
+//     playerRequests.push({ requestNumber, vx: -playerSpeed, vy: 0 });
+//     frontendPlayers[socket.id].x -= playerSpeed;
+//     socket.emit("keydown", "ArrowLeft", requestNumber);
+//   }
 
-function drawPlayer({ x, y, radius, color }) {
-  ctx.beginPath();
-  ctx.shadowColor = color;
-  ctx.shadowBlur = 30;
-  ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.closePath();
-}
+//   if (keys["ArrowRight"]) {
+//     requestNumber++;
+//     playerRequests.push({ requestNumber, vx: playerSpeed, vy: 0 });
+//     frontendPlayers[socket.id].x += playerSpeed;
+//     socket.emit("keydown", "ArrowRight", requestNumber);
+//   }
+// }
 
-function drawBullet({ x, y, radius, color }) {
-  ctx.beginPath();
-  ctx.arc(x, y, radius, 0, Math.PI * 2, false);
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.closePath();
-}
-
-function updatePlayerPosition() {
-  if (keys["ArrowUp"]) {
-    requestNumber++;
-    playerRequests.push({ requestNumber, vx: 0, vy: -playerSpeed });
-    frontendPlayers[socket.id].y -= playerSpeed;
-    socket.emit("keydown", "ArrowUp", requestNumber);
-  }
-
-  if (keys["ArrowDown"]) {
-    requestNumber++;
-    playerRequests.push({ requestNumber, vx: 0, vy: playerSpeed });
-    frontendPlayers[socket.id].y += playerSpeed;
-    socket.emit("keydown", "ArrowDown", requestNumber);
-  }
-
-  if (keys["ArrowLeft"]) {
-    requestNumber++;
-    playerRequests.push({ requestNumber, vx: -playerSpeed, vy: 0 });
-    frontendPlayers[socket.id].x -= playerSpeed;
-    socket.emit("keydown", "ArrowLeft", requestNumber);
-  }
-
-  if (keys["ArrowRight"]) {
-    requestNumber++;
-    playerRequests.push({ requestNumber, vx: playerSpeed, vy: 0 });
-    frontendPlayers[socket.id].x += playerSpeed;
-    socket.emit("keydown", "ArrowRight", requestNumber);
-  }
-}
-
-setInterval(updatePlayerPosition, 1000/60);
+// setInterval(updatePlayerPosition, 1000/60);
 
 
 
-window.addEventListener("keydown", (event) => {
-  keys[event.key] = true;
-});
+// window.addEventListener("keydown", (event) => {
+//   keys[event.key] = true;
+// });
 
-window.addEventListener("keyup", (event) => {
-  keys[event.key] = false;
-});
+// window.addEventListener("keyup", (event) => {
+//   keys[event.key] = false;
+// });
 
-canvas.addEventListener("click", (event) => {
-  // console.log("mouse clicked: ", event.clientX, event.clientY);
-  const c = canvas.getBoundingClientRect();
-  // console.log("canvas: ", c.top, c.left);
-  const player = {
-    x: frontendPlayers[socket.id].x,
-    y: frontendPlayers[socket.id].y,
-  }
-  console.log("player: ", frontendPlayers[socket.id].x, frontendPlayers[socket.id].y);
+// canvas.addEventListener("click", (event) => {
+//   // console.log("mouse clicked: ", event.clientX, event.clientY);
+//   const c = canvas.getBoundingClientRect();
+//   // console.log("canvas: ", c.top, c.left);
+//   const player = {
+//     x: frontendPlayers[socket.id].x,
+//     y: frontendPlayers[socket.id].y,
+//   }
+//   console.log("player: ", frontendPlayers[socket.id].x, frontendPlayers[socket.id].y);
 
-  const mouseX = (event.clientX - c.left) / dpi;
-  const mouseY = (event.clientY - c.top) / dpi;
+//   const mouseX = (event.clientX - c.left) / dpi;
+//   const mouseY = (event.clientY - c.top) / dpi;
 
-  console.log("mousecanvas: ", mouseX, mouseY);
-  const shotAngle = Math.atan2(mouseY - player.y, mouseX - player.x);
-  console.log(shotAngle);
+//   console.log("mousecanvas: ", mouseX, mouseY);
+//   const shotAngle = Math.atan2(mouseY - player.y, mouseX - player.x);
+//   console.log(shotAngle);
 
-  const bullet = {
-    x: player.x,
-    y: player.y,
-    angle: shotAngle,
-  }
+//   const bullet = {
+//     x: player.x,
+//     y: player.y,
+//     angle: shotAngle,
+//   }
  
-  console.log("bullet: ", bullet.x, bullet.y);
-  socket.emit("addBullet", bullet);
-});
+//   console.log("bullet: ", bullet.x, bullet.y);
+//   socket.emit("addBullet", bullet);
+// });
