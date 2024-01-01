@@ -1,40 +1,33 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./style.scss">
+    <link rel="stylesheet" href="./style.scss" />
     <title>Vite App</title>
   </head>
   <body>
-
     <nav class="navbar">
       <h1 class="logo">GunGlory</h1>
 
       <div class="navbar-right-buttons">
-        <Button class="create-room-button">
-          Create Room
-        </Button>
-        <Button class="join-room-button">
-          Join Room
-        </Button>
+        <button class="create-room-button">Create Room</button>
+        <button class="join-room-button">Join Room</button>
         <div class="auth">
-          <Button class="auth-button">
-            sign in/up
-          </Button>
-          <Button class="guest-button">
-            Guest
-          </Button>
+          <button class="auth-button">sign in/up</button>
+          <button class="guest-button">Guest</button>
         </div>
       </div>
-
     </nav>
 
     <div class="welcome-modal">
       <div class="welcome-text">
         <h2>Welcome to GunGlory</h2>
-        <p>Get ready for an exciting multiplayer experience. Log in to Create/join a room and start playing!</p>
+        <p>
+          Get ready for an exciting multiplayer experience. Log in to
+          Create/join a room and start playing!
+        </p>
       </div>
       <button class="modal-guest-button">Play as a Guest</button>
     </div>
@@ -43,8 +36,12 @@
       <h2>Create Room</h2>
       <div class="create-room-body">
         <p>Please enter a name for your room:</p>
-       <input class="create-room-modal-input" type="text" placeholder="shooter" />
-       <button class="create-room-modal-button">Create Room</button>
+        <input
+          class="create-room-modal-input"
+          type="text"
+          placeholder="shooter"
+        />
+        <button class="create-room-modal-button">Create Room</button>
       </div>
     </div>
 
@@ -52,66 +49,63 @@
       <h2>Join Room</h2>
       <div class="join-room-body">
         <p>Please enter the name of the room you want to join:</p>
-       <input class="join-room-modal-input" type="text" placeholder="xyz" />
-       <button class="join-room-modal-button">Join Room</button>
+        <input class="join-room-modal-input" type="text" placeholder="xyz" />
+        <button class="join-room-modal-button">Join Room</button>
       </div>
     </div>
 
-    <div class="authModal">
+    <div class="auth-modal">
+      <form class="login-form">
+        <h2>Sign In</h2>
+        <p class="heading">Please enter your details:</p>
+        <div class="field-container">
+          <input type="email" id="login-email" placeholder="Email" required />
+          <input
+            type="password"
+            id="login-password"
+            placeholder="Password"
+            required
+          />
 
-     <form id="signupForm">
-      <p class="heading">Sign Up</p>
-      <div class="field-container">
-      <label for="signup-name">Name</label>
-      <input type="text" id="signup-name" name="name" required>
+          <button type="submit">
+            <div class="login-spinner"></div>
+            <p>Sign In</p>
+          </button>
+        </div>
+      </form>
+
+      <form class="signup-form">
+        <h2>Sign Up</h2>
+        <p class="heading">Please enter your details:</p>
+        <div class="field-container">
+          <input type="text" id="signup-name" placeholder="Name" required />
+          <input type="email" id="signup-email" placeholder="Email" required />
+          <input
+            type="password"
+            id="signup-password"
+            placeholder="Password"
+            required
+          />
+          <button type="submit">
+            <div class="signup-spinner"></div>
+            <p>Sign Up</p>
+          </button>
+        </div>
+      </form>
+
+      <div class="form-toggle">
+        <p class="form-toggle-text">Don't have an account?</p>
+        <button class="form-toggle-button">Sign Up</button>
       </div>
-
-      <div class="field-container">
-      <label for="signup-email">Email</label>
-      <input type="email" id="signup-email" name="email" required>
-      </div>
-
-      <div class="field-container">
-      <label for="signup-password">Password</label>
-      <input type="password" id="signup-password" name="password" required>
-      </div>
-
-      <button type="submit">
-        <div class="signup-spinner"></div>
-        <p>sign up</p>
-      </button>
-    </form>
-
-    <form id="loginForm">
-      <p class="heading">Login</p>
-      <div class="field-container">
-      <label for="login-email">Email</label>
-      <input type="email" id="login-email" name="email" required>
-      </div>
-
-      <div class="field-container">
-      <label for="login-password">Password</label>
-      <input type="password" id="login-password" name="password" required>
-      </div>
-
-      <button type="submit">
-        <div class="login-spinner"></div>
-        <p>login</p>
-      </button>
-    </form>
-
-    <div class="form-toggle">
-      <p class="form-toggle-text">Already have an account?</p>
-      <button class="form-toggle-button">login</button>
-    </div>
-
-
-
     </div>
 
     <div class="emailModal">
       <h3>Verify Your Email</h3>
-      <p>A verification email has been sent to your email address. To complete the verification process, please click the verification link in the email.</p>
+      <p>
+        A verification email has been sent to your email address. To complete
+        the verification process, please click the verification link in the
+        email.
+      </p>
       <p>You may now close this tab!</p>
       <button>
         <p>Resend Verification Email</p>
