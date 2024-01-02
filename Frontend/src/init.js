@@ -1,5 +1,3 @@
-
-
 const welcomeModal = document.querySelector('.welcome-modal');
 const modalGuestButton = document.querySelector('.modal-guest-button');
 const authButton = document.querySelector('.auth-button');
@@ -19,8 +17,20 @@ const signupForm = document.querySelector('.signup-form');
 const formToggleBtn = document.querySelector('.form-toggle-button');
 const formToggleText = document.querySelector('.form-toggle-text');
 
+const roomLobbyOverlay = document.querySelector('.room-lobby-overlay');
+const roomLobby = document.querySelector('.room-lobby');
+const roomLobbyHeaderText = document.querySelector('.room-lobby-header-text');
+const roomLobbyLeaveButton = document.querySelector('.room-lobby-leave-button');
+const roomLobbyStartButton = document.querySelector('.room-lobby-start-button');
+
+const playersContainer = document.querySelector('.players-container');
 
 const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext("2d");
+const dpi = window.devicePixelRatio || 1;
+canvas.width = 1024;
+canvas.height = 576;
+ctx.scale(dpi, dpi);
 
 let isWelcomeModalOpen = false;
 let isCreateRoomModalOpen = false;
@@ -29,18 +39,9 @@ let isAuthModalOpen = false;
 let isSignUpModalOpen = false;
 let isLoginModalOpen = false;
 let roomId = '';
+let gameStarted = false;
+const rooms = {};
 
-function handleWelcomeModalVisibility(){
-    welcomeModal.style.display = isWelcomeModalOpen ? 'flex' : 'none';
-}
-
-function handleCreateRoomModalVisibility(){
-    createRoomModal.style.display = isCreateRoomModalOpen ? 'flex' : 'none';
-}
-
-function handleJoinRoomModalVisibility(){
-    joinRoomModal.style.display = isJoinRoomModalOpen ? 'flex' : 'none';
-}
 
 function handleAuthModalVisibility(){
     authModal.style.display = isAuthModalOpen ? 'flex' : 'none';
@@ -50,21 +51,9 @@ function handleAuthModalVisibility(){
     formToggleText.textContent = isSignUpModalOpen ? `Already have an account?` : `Don't have an account?`;
 };
 
-createRoomBtn.addEventListener('click', ()=> {
-    isCreateRoomModalOpen = !isCreateRoomModalOpen;
-    isJoinRoomModalOpen === true ? isJoinRoomModalOpen = false : '';
-    handleJoinRoomModalVisibility();
-    handleCreateRoomModalVisibility();
-})
-
-joinRoomBtn.addEventListener('click', ()=> {
-    console.log("inside join room");
-    isJoinRoomModalOpen = !isJoinRoomModalOpen;
-    isCreateRoomModalOpen === true ? isCreateRoomModalOpen = false : '';
-    handleCreateRoomModalVisibility();
-    console.log("isJoinRoomModalOpen: ", isJoinRoomModalOpen);
-    handleJoinRoomModalVisibility();
-})
+function handleWelcomeModalVisibility(){
+    welcomeModal.style.display = isWelcomeModalOpen ? 'flex' : 'none';
+  }
 
 modalGuestButton.addEventListener('click', ()=> {
     isWelcomeModalOpen = false;
@@ -75,8 +64,10 @@ modalGuestButton.addEventListener('click', ()=> {
 authButton.addEventListener('click', ()=> {
     isAuthModalOpen = !isAuthModalOpen;
     if(isAuthModalOpen) {
-        isSignUpModalOpen = false;
+        joinRoomModal.style.display = 'none';
+        createRoomModal.style.display = 'none';
         isLoginModalOpen = true;
+        isSignUpModalOpen = false;
     }
     handleAuthModalVisibility();
 })
@@ -85,4 +76,23 @@ formToggleBtn.addEventListener('click', ()=> {
     isSignUpModalOpen = !isSignUpModalOpen;
     isLoginModalOpen = !isLoginModalOpen;
     handleAuthModalVisibility();
+});
+
+
+
+window.addEventListener('click', (e)=> {
+    if(roomLobbyOverlay.style.display === 'flex' && !roomLobby.contains(e.target)){
+        roomLobbyOverlay.style.display = 'none';
+        gameStarted = false;
+        socket.emit('gameStopped', roomId);
+    }
+
+    // if(joinRoomModal.style.display === 'flex' && !joinRoomModal.contains(e.target)){
+    //     joinRoomModal.style.display = 'none';
+    // }
+
+    // if(createRoomModal.style.display === 'flex' && !createRoomModal.contains(e.target)){
+    //     isCreateRoomModalOpen = false;
+    //     createRoomModal.style.display = 'none';
+    // }
 });

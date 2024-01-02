@@ -1,24 +1,34 @@
-    @font-face {
-        font-family: 'GeistMono-Regular';
-        src: url('../assets/fonts/GeistMono-Regular.otf') format('opentype');
+    // @font-face {
+    //     font-family: 'GeistMono-Regular';
+    //     src: url('../assets/fonts/GeistMono-Regular.otf') format('opentype');
+    // }
+
+    // @font-face {
+    //     font-family: 'GeistSans-Regular';
+    //     src: url('../assets/fonts/GeistSans-Regular.otf') format('opentype');
+    // }
+
+    // @font-face {
+    //     font-family: 'Geist-Regular';
+    //     src: url('../assets/fonts/Geist-Regular.otf') format('opentype');
+    // }
+
+    // @font-face {
+    //     font-family: 'Geist-SemiBold';
+    //     src: url('../assets/fonts/Geist-SemiBold.otf') format('opentype');
+    // }
+
+    // @font-face {
+    //     font-family: 'Geist-SemiBold-Macos';
+    //     src: url('../assets/fonts/Geist-SemiBold-Macos.otf') format('opentype');
+    // }
+
+    @font-face{
+        font-family: 'GeistSans';
+        src: url('/geist-sans/Geist-Regular.woff2') format('woff2');
     }
 
-    @font-face {
-        font-family: 'GeistSans-Regular';
-        src: url('../assets/fonts/GeistSans-Regular.otf') format('opentype');
-    }
-
-    @font-face {
-        font-family: 'Geist-Regular';
-        src: url('../assets/fonts/Geist-Regular.otf') format('opentype');
-    }
-
-    @font-face {
-        font-family: 'Geist-SemiBold';
-        src: url('../assets/fonts/Geist-SemiBold.otf') format('opentype');
-    }
-
-    @font-face {
-        font-family: 'Geist-SemiBold-Macos';
-        src: url('../assets/fonts/Geist-SemiBold-Macos.otf') format('opentype');
+    @font-face{
+        font-family: 'GeistMono';
+        src: url('/geist-mono/GeistMono-Regular.woff') format('woff');
     }
