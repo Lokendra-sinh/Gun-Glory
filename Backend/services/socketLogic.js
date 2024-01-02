@@ -2,6 +2,7 @@ import { set } from "mongoose";
 
 
 function initiateSocketLogic(io) {
+  const rooms = {};
   const backendPlayers = {};
   const backendBullets = {};
   const bulletSpeed = 5;
@@ -18,7 +19,7 @@ let bulletId = 0;
 
       const existingRooms = io.sockets.adapter.rooms;
         if (existingRooms.has(roomId)) {
-            socket.emit("roomError", { message: "The room already exists." });
+            socket.emit("roomError", { message: "The room already exists. Either join the room or create a new one" });
             return;
         }
       socket.join(roomId);
@@ -52,12 +53,22 @@ let bulletId = 0;
         return;
       }
 
+      if(rooms[roomId] && rooms[roomId]["gameStarted"]){
+        socket.emit("roomError", { message: "The game has already started in this room." });
+        return;
+      }
+
+      if(availablerooms.get(roomId).size >= 5){
+        socket.emit("roomError", { message: "The room is full but you can join another room"});
+        return;
+      }
+
       if (backendPlayers[roomId][socket.id]) {
         socket.emit("roomError", { message: "A player with this ID already exists in the room." });
         return;
       }
 
-      
+
 
       socket.join(roomId);
       currentRoom = roomId;
@@ -76,6 +87,23 @@ let bulletId = 0;
       socket.to(roomId).emit("newPlayer", backendPlayers[roomId][socket.id]);
     });
 
+    socket.on("gameStarted", (roomId) => {
+      if(rooms[roomId] && rooms[roomId]["gameStarted"]){
+        socket.emit("roomError", { message: "The game has already started in this room." });
+      } else {
+        rooms[roomId] = {gameStarted: true};
+        io.in(roomId).emit("gameStarted", roomId);
+      }
+    });
+
+    socket.on("gameStopped", (roomId) => {
+      if(rooms[roomId] && rooms[roomId]["gameStarted"]){
+        rooms[roomId] = {gameStarted: true};
+        delete backendPlayers[roomId];
+      } else {
+        socket.emit("roomError", { message: "The room does not exist"});
+      }
+    });
     socket.on("keydown", (keycode, requestNumber) => {
         backendPlayers[currentRoom][socket.id].requestNumber = requestNumber;
         switch (keycode) {
@@ -124,9 +152,15 @@ let bulletId = 0;
     });
 
     setInterval(() => {
-        io.in(currentRoom).emit("gameState", backendPlayers[currentRoom]);
-        updateBulletsPosition();
-        io.in(currentRoom).emit("updateBullets", backendBullets[currentRoom]);
+        if(backendPlayers[currentRoom] && Object.keys(backendPlayers[currentRoom]).length > 0){
+            io.in(currentRoom).emit("gameState", backendPlayers[currentRoom]);
+        }
+    
+        if(backendBullets[currentRoom] && Object.keys(backendBullets[currentRoom]).length > 0){
+            updateBulletsPosition();
+            io.in(currentRoom).emit("updateBullets", backendBullets[currentRoom]);
+        };
+        
     }, 1000/60);
 
     function updateBulletsPosition() {
