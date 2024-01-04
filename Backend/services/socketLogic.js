@@ -5,7 +5,7 @@ function initiateSocketLogic(io) {
   const rooms = {};
   const backendPlayers = {};
   const backendBullets = {};
-  const bulletSpeed = 5;
+  const bulletSpeed = 10;
 const playerSpeed = 10;
 const bulletRadius = 5;
 const playerRadius = 10;
@@ -96,6 +96,31 @@ let bulletId = 0;
       }
     });
 
+    socket.on("leaveRoom", (roomId) => {
+      io.in(roomId).emit("playerLeftTheRoom", socket.id);
+      socket.leave(roomId);
+      if(backendPlayers[roomId]){
+        delete backendPlayers[roomId][socket.id];
+      }
+
+    });
+
+    socket.on("deleteRoom", (roomId) => {
+      const playersInRoom = io.sockets.adapter.rooms.get(roomId);
+      if(playersInRoom){
+
+        io.in(roomId).emit("roomDeleted", roomId);
+        playersInRoom.forEach((playerId) => {
+          io.sockets.sockets.get(playerId).leave(roomId);
+        })
+      }
+
+      delete rooms[roomId];
+      delete backendPlayers[roomId];
+      delete backendBullets[roomId];
+
+    });
+
     socket.on("gameStopped", (roomId) => {
       if(rooms[roomId] && rooms[roomId]["gameStarted"]){
         rooms[roomId] = {gameStarted: true};
@@ -120,7 +145,6 @@ let bulletId = 0;
             backendPlayers[currentRoom][socket.id].x += playerSpeed;
             break;
         }
-        // io.in(currentRoom).emit("gameState", backendPlayers[currentRoom]);
       });
 
     socket.on("addBullet", ({ x, y, angle }) => {
@@ -163,11 +187,15 @@ let bulletId = 0;
         
     }, 1000/60);
 
+    function lerp(start, end, t) {
+      return start + (end - start) * t;
+    }
+
     function updateBulletsPosition() {
         for (const bulletId in backendBullets[currentRoom]) {
-          backendBullets[currentRoom][bulletId].x += backendBullets[currentRoom][bulletId].velocity.x;
-          backendBullets[currentRoom][bulletId].y += backendBullets[currentRoom][bulletId].velocity.y;
-    
+            backendBullets[currentRoom][bulletId].x += backendBullets[currentRoom][bulletId].velocity.x;
+            backendBullets[currentRoom][bulletId].y += backendBullets[currentRoom][bulletId].velocity.y;
+
           //boundary detection
     
           if (

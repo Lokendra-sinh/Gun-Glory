@@ -6,10 +6,10 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 
 async function addUserToDatabase(req, res, next) {
-  console.log("inside database");
+  console.log("inside addUserTodatabase");
   try {
     const finalUserData = req.updatedUserData;
-    finalUserData.hashedPassword = req.hashedPassword;
+    finalUserData.password = req.hashedPassword;
     console.log("final user data is: ", finalUserData);
     const addUser = new UserModel(finalUserData);
     const savedUser = await addUser.save();
@@ -17,10 +17,9 @@ async function addUserToDatabase(req, res, next) {
     console.log("user id is: ", userId);
     req.userId = userId;
 
-    await generateVerificationToken(userId, finalUserData.email);
+    await generateVerificationCode(userId, finalUserData.email);
 
-    console.log("data added to mongoDB successfully");
-    res.status(200).send('Please click the link sent on your email to verify your identity');
+    console.log("data added to mongoDB and link sent successfully");
     next();
   } catch (error) {
     console.log("error while adding user to database: ", error);
@@ -29,16 +28,16 @@ async function addUserToDatabase(req, res, next) {
   console.log("outside database");
 }
 
-async function generateVerificationToken(userId, email) {
+async function generateVerificationCode(userId, email) {
   try {
-    const verificationToken = crypto.randomBytes(64).toString("hex");
-    const addVerificationToken = new VerificationTokenModel({
+    const verificationCode = crypto.randomBytes(3).toString("hex");
+    const addVerificationCode = new VerificationTokenModel({
       userId,
-      token: verificationToken,
+      token: verificationCode,
     });
-    const response = await addVerificationToken.save();
+    const response = await addVerificationCode.save();
     console.log("token added successfully: ", response);
-    await sendEmailVerificationLink(email, verificationToken);
+    await sendEmailVerificationLink(email, verificationCode);
   } catch (error) {
     console.log("error while generating token: ", error);
     throw error;
@@ -46,7 +45,6 @@ async function generateVerificationToken(userId, email) {
 }
 
 async function sendEmailVerificationLink(email, verificationToken) {
-  const verificationLink = `http://localhost:4000/verify?token=${verificationToken}`;
 
   try {
     const transport = nodemailer.createTransport({
@@ -61,8 +59,8 @@ async function sendEmailVerificationLink(email, verificationToken) {
       from: process.env.EMAIL,
       to: email,
       subject: "Verify your email address",
-      text: "Click the following link to verify your email address:",
-      html: `<p><a href="${verificationLink}">Click here</a></p>`,
+      text: "Here's your verification code:",
+      html: `<p>${verificationToken}</p>`,
     };
 
     const mailResponse = await transport.sendMail(mailOptions);
