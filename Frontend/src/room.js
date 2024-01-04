@@ -250,9 +250,9 @@ function drawPlayer({ x, y, radius, color }) {
   ctx.fill();
   ctx.closePath();
 
-  ctx.font = "10px Arial";
+  ctx.font = "12px Arial";
   ctx.fillStyle = color;
-  ctx.fillText(user.name, x, y + radius + 20);
+  ctx.fillText(user.name ? user.name : 'Guest', x, y + radius + 10);
 }
 
 function drawBullet({ x, y, radius, color }) {
