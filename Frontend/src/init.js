@@ -33,11 +33,15 @@ let isJoinRoomModalOpen = false;
 
 let roomId = '';
 let gameStarted = false;
+let userLoggedIn = false;
+
+const URL = "http://localhost:4000";
 const rooms = {};
 const user = {
     name: '',
     email: '',
 };
+
 
 
 function handleWelcomeModalVisibility(){
@@ -51,6 +55,7 @@ modalGuestButton.addEventListener('click', ()=> {
 })
 
 
+//event listeners to handle modal closing
 
 window.addEventListener('click', (e)=> {
     if(roomLobbyOverlay.style.display === 'flex' && !roomLobby.contains(e.target)){
@@ -58,13 +63,4 @@ window.addEventListener('click', (e)=> {
         gameStarted = false;
         socket.emit('gameStopped', roomId);
     }
-
-    // if(joinRoomModal.style.display === 'flex' && !joinRoomModal.contains(e.target)){
-    //     joinRoomModal.style.display = 'none';
-    // }
-
-    // if(createRoomModal.style.display === 'flex' && !createRoomModal.contains(e.target)){
-    //     isCreateRoomModalOpen = false;
-    //     createRoomModal.style.display = 'none';
-    // }
 });

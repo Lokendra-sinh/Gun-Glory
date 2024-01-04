@@ -1,7 +1,5 @@
 import axios from "axios";
 
-const URL = "http://localhost:4000";
-
 const authButton = document.querySelector(".auth-button");
 const authModal = document.querySelector(".auth-modal");
 const loginForm = document.querySelector(".login-form");
@@ -41,6 +39,44 @@ let isAuthModalOpen = false;
 let isSignUpModalOpen = false;
 let isLoginModalOpen = false;
 let isEmailVerificationModalOpen = false;
+
+// automatic user login based on token value
+
+fetchUserData();
+
+async function fetchUserData() {
+
+    const token = localStorage.getItem("token");
+    console.log("token from handleUserlogin is: ", token);
+    if(!token){
+        console.log("no token found");
+        return;
+    }
+
+    try {
+      const response = await axios.post(
+        URL + "/login",
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": token,
+          },
+        }
+      );
+  
+      const userData = await response.data;
+      console.log("user data is: ", userData);
+      user.name = userData.name;
+      user.email = userData.email;
+      guestButton.textContent = user.name;
+      userLoggedIn = true;
+      authButton.textContent = 'Logout';
+  
+    } catch (error) {
+      console.log("error while logging user: ", error);
+    }
+  }
 
 function handleAuthModalVisibility() {
   authModal.style.display = isAuthModalOpen ? "flex" : "none";
@@ -107,6 +143,16 @@ emailVerificationForm.addEventListener("submit", (event) => {
 
 authButton.addEventListener("click", (event) => {
   event.preventDefault();
+
+  //if user is already logged in, log them out
+
+  if(userLoggedIn){
+    userLoggedIn = false;
+    authButton.textContent = 'Sign in/up';
+    guestButton.textContent = 'Guest';
+    return;
+  }
+
   isAuthModalOpen = !isAuthModalOpen;
   if (isAuthModalOpen) {
     isLoginModalOpen = true;
