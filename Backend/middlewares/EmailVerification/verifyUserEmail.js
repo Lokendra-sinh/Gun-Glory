@@ -1,12 +1,13 @@
 import { VerificationTokenModel, UserModel } from "../../Config/mongooseSchemas.js";
 
 async function verifyUserEmail(req, res, next){
-    const extractedToken = req.query.token;
+    console.log("inside verify user email");
+    const { verificationCode } = req.body;
 
     try{
-    const verificationToken = await VerificationTokenModel.findOne({token: extractedToken});
+    const verificationToken = await VerificationTokenModel.findOne({token: verificationCode});
     if(!verificationToken){
-        return res.status(404).send('Invalid Verification Token');
+        return res.status(404).send('Invalid Verification Code!');
     }
 
     const extractedUserId = verificationToken.userId;
@@ -17,10 +18,10 @@ async function verifyUserEmail(req, res, next){
         return res.status(404).send('User not found!');
     }
 
-    user.active = true;
+    user.verified = true;
     await user.save();
 
-    // // await VerificationTokenModel.deleteOne({})
+    await VerificationTokenModel.deleteOne({token: verificationCode})
     // res.status(200).send('Email Verification Successful. You can now log in');
     next();
 
