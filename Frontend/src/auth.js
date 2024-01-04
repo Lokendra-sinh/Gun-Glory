@@ -1,138 +1,237 @@
-// import axios from "axios";
+import axios from "axios";
 
-// const URL = "http://localhost:4000";
+const URL = "http://localhost:4000";
 
-// const authenticateBtn = document.querySelector(".authenticate-button");
-// const profileBtn = document.querySelector(".profile");
-// const formToggleText = document.querySelector(".form-toggle-text");
-// const formToggleBtn = document.querySelector(".form-toggle-button");
-// const authModal = document.querySelector(".authModal");
-// const emailModal = document.querySelector(".emailModal");
-// const spinner = document.querySelector(".signup-spinner");
+const authButton = document.querySelector(".auth-button");
+const authModal = document.querySelector(".auth-modal");
+const loginForm = document.querySelector(".login-form");
+const signupForm = document.querySelector(".signup-form");
+const signupButton = document.getElementById("signup-button");
+const loginButton = document.getElementById("login-button");
+const formToggleBtn = document.querySelector(".form-toggle-button");
+const formToggleText = document.querySelector(".form-toggle-text");
+const loginSpinner = document.querySelector(".login-spinner");
+const signupSpinner = document.querySelector(".signup-spinner");
 
-// let isSignUp = false;
-// let isModalOpen = false;
-// let isEmailModal = false;
-// let isSpinner = false;
-// authModal.style.display = "none";
+//email verification modal elements
 
-// function handleAuthModalVisibility() {
-//   authModal.style.display = isModalOpen ? "flex" : "none";
-// }
+const emailVerificationModalOverlay = document.querySelector(
+  ".email-verification-modal-overlay"
+);
+const emailVerificationForm = document.querySelector(
+  ".email-verification-form"
+);
+const emailVerificationSpinner = document.querySelector(
+  ".email-verification-spinner"
+);
+const closeEmailVerificationModalButton = document.querySelector(
+  ".close-email-verification-modal-button"
+);
 
-// function handleEmailModalVisibility() {
-//   emailModal.style.display = isEmailModal ? "flex" : "none";
-// }
+//verification result message elements
 
-// function handleFormVisibility() {
-//   formToggleBtn.textContent = isSignUp ? "login" : "sign up";
-//   formToggleText.textContent = isSignUp
-//     ? `Already have an account?`
-//     : `Don't have an account?`;
-//   signupForm.style.display = isSignUp ? "flex" : "none";
-//   loginForm.style.display = isSignUp ? "none" : "flex"; // Assuming login form should hide when sign up is selected
-// }
+const verificationSuccessMessage = document.querySelector(
+  ".verification-success"
+);
+const verificationFailureMessage = document.querySelector(
+  ".verification-failure"
+);
 
-// // document.addEventListener('click', (event) => {
-// //    if(isModalOpen && !event.target.contains(authModal)){
-// //     console.log("inside clicked");
-// //     // isSignUp = !isSignUp;
-// //     isModalOpen = !isModalOpen;
-// //     handleAuthModalVisibility();
-// //    }
-// // })
+let isAuthModalOpen = false;
+let isSignUpModalOpen = false;
+let isLoginModalOpen = false;
+let isEmailVerificationModalOpen = false;
 
-// authenticateBtn.addEventListener("click", () => {
-//   isModalOpen = !isModalOpen;
-//   isSignUp = !isSignUp;
-//   handleAuthModalVisibility();
-//   handleFormVisibility();
-// });
+function handleAuthModalVisibility() {
+  authModal.style.display = isAuthModalOpen ? "flex" : "none";
+  loginForm.style.display = isLoginModalOpen ? "flex" : "none";
+  signupForm.style.display = isSignUpModalOpen ? "flex" : "none";
+  formToggleBtn.textContent = isSignUpModalOpen ? "Sign in" : "Sign Up";
+  formToggleText.textContent = isSignUpModalOpen
+    ? `Already have an account?`
+    : `Don't have an account?`;
 
-// const signupForm = document.getElementById("signupForm");
-// signupForm.addEventListener("submit", function (event) {
-//   event.preventDefault();
-//   spinner.style.display = "flex";
-//   extractSignupFormValues();
-// });
+    loginForm.reset();
+    signupForm.reset();
+}
 
-// const loginForm = document.getElementById("loginForm");
-// loginForm.addEventListener("submit", function (event) {
-//   event.preventDefault();
-//   spinner.style.display = "flex";
-//   extractLoginFormValues();
-// });
+function handleEmailVerificationModalVisibility() {
+  emailVerificationModalOverlay.style.display = isEmailVerificationModalOpen
+    ? "flex"
+    : "none";
+}
+
+async function handleEmailVerification(verificationCode) {
+  try {
+    const response = await axios.post(
+      URL + "/verify-email",
+      {
+        verificationCode,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const userData = await response.data;
+    console.log("user data is: ", userData);
+    console.log("token is: ", userData.token);
+    
+    localStorage.setItem("token", userData.token);
+    verificationSuccessMessage.style.display = "flex";
+    setTimeout(() => {
+      verificationSuccessMessage.style.display = "none";
+      isEmailVerificationModalOpen = false;
+      handleEmailVerificationModalVisibility();
+      isAuthModalOpen = true;
+      isLoginModalOpen = true;
+      isSignUpModalOpen = false;
+      handleAuthModalVisibility();
+    }, 2000);
+  } catch (error) {
+    console.log("error while verifying email: ", error);
+    verificationFailureMessage.style.display = "flex";
+  }
+}
+
+emailVerificationForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  // emailVerificationSpinner.style.display = 'flex';
+  const verificationCode = document
+    .querySelector(".email-verification-otp")
+    .value.trim("");
+  handleEmailVerification(verificationCode);
+});
+
+authButton.addEventListener("click", (event) => {
+  event.preventDefault();
+  isAuthModalOpen = !isAuthModalOpen;
+  if (isAuthModalOpen) {
+    isLoginModalOpen = true;
+    isSignUpModalOpen = false;
+  }
+  handleAuthModalVisibility();
+});
+
+formToggleBtn.addEventListener("click", (event) => {
+  event.preventDefault();
+  if (isSignUpModalOpen) {
+    isSignUpModalOpen = false;
+    isLoginModalOpen = true;
+  } else {
+    isSignUpModalOpen = true;
+    isLoginModalOpen = false;
+  }
+  handleAuthModalVisibility();
+});
+
+signupForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+  signupSpinner.style.display = "flex";
+  console.log("inside signup form: ", signupButton);
+  signupButton.disabled = true;
+  extractSignupFormValues();
+});
+
+loginForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+  loginSpinner.style.display = "flex";
+  console.log("inside login form: ", loginButton);
+  loginButton.disabled = true;
+  extractLoginFormValues();
+});
+
+closeEmailVerificationModalButton.addEventListener("click", (event) => {
+  isEmailVerificationModalOpen = false;
+  handleEmailVerificationModalVisibility();
+});
 
 // formToggleBtn.addEventListener("click", () => {
-//   isSignUp = !isSignUp;
-//   handleFormVisibility();
+//   isSignUpModalOpen = !isSignUpModalOpen;
+// //  handleAuthModalVisibility();
 // });
 
-// async function handleUserRegistration(name, email, password) {
-//   console.log("inside handleUserRgistration");
-//   try {
-//     const response = await axios.post(
-//       URL + "/register",
-//       {
-//         name,
-//         email,
-//         password,
-//       },
-//       {
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
+async function handleUserRegistration(name, email, password) {
+  console.log("inside handleUserRgistration");
+  try {
+    const response = await axios.post(
+      URL + "/register",
+      {
+        name,
+        email,
+        password,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-//     isModalOpen = false;
-//     isEmailModal = true;
-//     spinner.style.display = "none";
-//     handleAuthModalVisibility();
-//     handleEmailModalVisibility();
+    isAuthModalOpen = false;
+    signupSpinner.style.display = "none";
+    signupButton.disabled = false;
+    handleAuthModalVisibility();
+    isEmailVerificationModalOpen = true;
+    handleEmailVerificationModalVisibility();
+  } catch (error) {
+    console.log("error is: ", error);
+    // spinner.style.display = "none";
+  }
+}
 
-    
-//   } catch (error) {
-//     console.log("error is: ", error);
-//     spinner.style.display = "none";
-//   }
-// }
+async function handleUserLogin(email, password) {
+  try {
+    const token = localStorage.getItem("token");
+    console.log("token from handleUserlogin is: ", token);
+    const response = await axios.post(
+      URL + "/login",
+      {
+        email,
+        password,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token,
+        },
+      }
+    );
 
-// async function handleUserLogin(email, password){
-//     try{
-//         const response = await axios.post(URL + '/login', {
-//             email,
-//             password
-//         },{
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//         });
+    const userData = await response.data;
+    console.log("user data is: ", userData);
 
-//         const userData = await response.data;
-//         console.log("user data is: ", userData);
-//         isModalOpen = false;
-//     spinner.style.display = "none";
-//     handleAuthModalVisibility();
+    setTimeout(() => {
+      loginSpinner.style.display = "none";
+      loginButton.disabled = false;
+      isAuthModalOpen = false;
+    handleAuthModalVisibility();
+    }, 2000);
 
-//     } catch (error){
-//        console.log("error while logging user: ", error);
-//     }
-// }
-// function extractSignupFormValues() {
-//   const name = document.getElementById("signup-name").value;
-//   const email = document.getElementById("signup-email").value;
-//   const password = document.getElementById("signup-password").value;
-//   console.log("inside extactSignUpForm");
-//   handleUserRegistration(name, email, password);
-// }
+    user.name = userData.name;
+    user.email = userData.email;
+    guestButton.textContent = user.name;
 
-// function extractLoginFormValues() {
-//   const email = document.getElementById("login-email").value;
-//   const password = document.getElementById("login-password").value;
-//   handleUserLogin(email, password);
+  } catch (error) {
+    console.log("error while logging user: ", error);
+  }
+}
+async function extractSignupFormValues() {
+  const name = document.getElementById("signup-name").value.trim("");
+  const email = document.getElementById("signup-email").value.trim("");
+  const password = document.getElementById("signup-password").value.trim("");
+  console.log("inside extactSignUpForm");
+  await handleUserRegistration(name, email, password);
+}
 
-//   console.log("Login Form Values:");
-//   console.log("Email:", email);
-//   console.log("Password:", password);
-// }
+async function extractLoginFormValues() {
+  const email = document.getElementById("login-email").value.trim("");
+  const password = document.getElementById("login-password").value.trim("");
+  await handleUserLogin(email, password);
+
+  console.log("Login Form Values:");
+  console.log("Email:", email);
+  console.log("Password:", password);
+}

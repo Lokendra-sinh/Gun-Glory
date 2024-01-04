@@ -1,0 +1,67 @@
+.room-error-overlay{
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+}
+
+.room-error-modal{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    background-color: #111827;
+    border-radius: 5px;
+    width: 450px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    gap: 1rem;
+
+    p{
+        font-family: var(--main-font);
+        font-size: 26px;
+        font-weight: medium;
+        color: white;
+    }
+}
+
+.room-error-body{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+
+    p{
+        font-family: var(--main-font);
+        font-size: 17px;
+        font-weight: medium;
+        color: rgb(209 213 219);
+    }
+
+    button{
+        outline: none;
+        border: none;
+        background-color: #3b82f6;
+        color: #fff;
+        width: 100%;
+        border-radius: 5px;
+        padding: 0.5rem 0;
+        font-family: var(--main-font);
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+
+        &:hover{
+            background-color: black;
+        }
+    }
+}

@@ -67,7 +67,7 @@
             required
           />
 
-          <button type="submit">
+          <button id="login-button" type="submit">
             <div class="login-spinner"></div>
             <p>Sign In</p>
           </button>
@@ -86,7 +86,7 @@
             placeholder="Password"
             required
           />
-          <button type="submit">
+          <button id="signup-button" type="submit">
             <div class="signup-spinner"></div>
             <p>Sign Up</p>
           </button>
@@ -99,17 +99,36 @@
       </div>
     </div>
 
-    <div class="emailModal">
-      <h3>Verify Your Email</h3>
+<div class="email-verification-modal-overlay">
+    <div class="email-verification-modal">
+      <div class="close-email-verification-modal">
+        <h3>Email Verification</h3>
+        <button class="close-email-verification-modal-button">x</button>
+      </div>
+      
       <p>
-        A verification email has been sent to your email address. To complete
-        the verification process, please click the verification link in the
-        email.
+        To ensure the security of your account, we need to verify your email address. A verification code will be sent to your email.
+        Please enter the 6-digit alphanumeric code in the field below
       </p>
-      <p>You may now close this tab!</p>
-      <button>
-        <p>Resend Verification Email</p>
-      </button>
+      <form class="email-verification-form">
+        <input type="text" class="email-verification-otp" placeholder="Enter OTP" required />
+        <button type="submit">
+          <div class="email-verification-spinner"></div>
+          <p>Verify</p>
+        </button>
+      </form>
+
+      <div class="verification-result">
+      <div class="verification-success">
+        <p>Verification Successful. Redirecting to login page...</p>
+        </div>
+
+        <div class="verification-failure">
+        <p>Verification Failed. Please try again</p>
+       
+        </div>
+      </div>
+    </div>
     </div>
 
     <div class="room-lobby-overlay">
@@ -128,19 +147,8 @@
         </div>
 
         <div class="players-container">
-          <!-- <div class="player-row">
-            <p class="player-name">Player 1</p>
-            <p class="player-role">Host</p>
+          
           </div>
-          <div class="player-row">
-            <p class="player-name">Player 2</p>
-            <p class="player-role">Player</p>
-          </div>
-
-          <div class="player-row">
-            <p class="player-name">Player 1</p>
-            <p class="player-role">Host</p>
-          </div> -->
          
       </div>
 
@@ -152,6 +160,15 @@
     </div>
     </div>
 
+    <div class="room-error-overlay">
+    <div class="room-error-modal">
+      <p>Room Error!</p>
+      <div class="room-error-body">
+        <p class="room-error-text">The host has already started the game.</p>
+        <button class="room-error-button">Close</button>
+      </div>
+    </div>
+    </div>
     <!-- <div class="game-over-modal">
       <h2>Game Over</h2>
       <div class="game-over-body">

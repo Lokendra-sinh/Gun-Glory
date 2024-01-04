@@ -40,17 +40,14 @@ app.post(
   addUserToDatabase,
   (req, res, next) => {
 
-    res.status(200);
+    res.status(200).send("user registered successfully");
   }
 );
 
-app.get('/verify', verifyUserEmail, createJsonToken, (req, res, next) => {
-console.log("verified successfully");
+app.post('/verify-email', verifyUserEmail, createJsonToken, (req, res, next) => {
 })
 
 app.post("/login", verifyToken, (req, res, next) => {
-    console.log("user token verified successflly");
-    res.status(200).json(req.user);
 })
 
 app.use((err, req, res, next) => {

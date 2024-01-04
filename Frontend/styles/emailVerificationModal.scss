@@ -1,0 +1,147 @@
+.email-verification-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: none;
+}
+
+.email-verification-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background-color: #111827;
+  border-radius: 5px;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1.5rem 2rem;
+  gap: 1rem;
+
+  p {
+    width: 90%;
+    font-family: var(--main-font);
+    font-size: 16px;
+    // color: gray;
+    // letter-spacing: -1px;
+  }
+}
+
+.close-email-verification-modal {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+
+  h3 {
+    font-family: var(--main-font);
+    font-size: 20px;
+    font-weight: normal;
+    color: white;
+    letter-spacing: -1px;
+  }
+
+  button{
+    outline: none;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    font-weight: 100;
+    cursor: pointer;
+
+    &:hover{
+      color: gray;
+    }
+  }
+}
+
+
+.email-verification-form{
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin: 1rem 0;
+    
+    input{
+        outline: 1px solid gray;
+        border: none;
+        padding: 0.5rem 0.8rem;
+        border-radius: 5px;
+        // border: 1px solid #d1d5db;
+        background-color: #111827;
+        color: white;
+        font-family: var(--main-font);
+        font-size: 16px;
+        font-weight: 500;
+    }
+    
+    button{
+        outline: none;
+        border: none;
+        background-color: #3b82f6;
+        color: #fff;
+        width: 100%;
+        border-radius: 5px;
+        padding: 0.5rem 0;
+        font-family: var(--main-font);
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+
+        &:hover{
+            background-color: black;
+        }
+    }
+}
+
+.verification-result{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    p{
+        font-family: var(--main-font);
+        font-size: 16px;
+        font-weight: 500;
+        color: white;
+    }
+}
+
+.verification-success{
+    width: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    p{
+        font-family: var(--main-font);
+        font-size: 16px;
+        font-weight: 500;
+        color: rgb(34 197 94);
+    }
+}
+
+.verification-failure{
+    width: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    p{
+        font-family: var(--main-font);
+        font-size: 16px;
+        font-weight: 500;
+        color: rgb(239 68 68);
+    }
+}

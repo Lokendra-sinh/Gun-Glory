@@ -155,17 +155,17 @@
         background-color: rgba(0, 0, 0, 0.4);
       }
   
-      .login-spinner {
+      .login-spinner, .signup-spinner {
         display: none;
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        border: 2px solid #fff;
+        border: 1px solid #fff;
         border-color: #fff transparent #fff transparent;
-        animation: login-spinner 1.2s linear infinite;
+        animation: spinner 1.2s linear infinite;
       }
       
-      @keyframes login-spinner {
+      @keyframes spinner {
         0% {
           transform: rotate(0deg);
         }

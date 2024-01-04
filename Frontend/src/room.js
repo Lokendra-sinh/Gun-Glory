@@ -86,9 +86,11 @@ joinRoomModalButton.addEventListener("click", (e) => {
 
 roomLobbyLeaveButton.addEventListener("click", (e) => {
   e.stopPropagation();
-  roomLobbyOverlay.style.display = "none";
-  gameStarted = false;
-  socket.emit("gameStopped", roomId);
+  if(hostId === socket.id) {
+    socket.emit("deleteRoom", roomId);
+  } else {
+    socket.emit("leaveRoom", roomId);
+  }
 });
 
 roomLobbyStartButton.addEventListener("click", (e) => {
@@ -110,6 +112,13 @@ socket.on("roomCreated", (roomId) => {
   hostId = socket.id;
 });
 
+socket.on("roomDeleted", (roomId) => {
+  console.log("room deleted with roomId: ", roomId);
+  hostId = "";
+  roomLobbyOverlay.style.display = "none";
+  gameStarted = false;
+});
+
 socket.on("playerCreated", (player) => {
   frontendPlayers[socket.id] = player;
   clearExistingPlayersList();
@@ -123,6 +132,15 @@ socket.on("roomError", (error) => {
 
 socket.on("roomJoined", (roomId) => {
   console.log("room joined with roomId: ", roomId);
+});
+
+socket.on("playerLeftTheRoom", (playerId) => {
+  if(playerId === socket.id) {
+    roomLobbyOverlay.style.display = "none";
+  }
+  delete frontendPlayers[playerId];
+  clearExistingPlayersList();
+  renderNewPlayersList();
 });
 
 socket.on("existingPlayers", (players) => {
