@@ -122,12 +122,30 @@ body {
   @include buttonStyles;
   background-color: var(--purple); // bg-blue-500 color in Tailwind
   color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  p{
+    font-size: 15px;
+    font-family: var(--main-font);
+    font-weight: 500;
+  }
 }
 
 .join-room-button{
   @include buttonStyles;
-  background-color: var(--purple); // bg-green-500 color in Tailwind
+  background-color: var(--purple); // bg-blue-500 color in Tailwind
   color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  p{
+    font-size: 15px;
+    font-family: var(--main-font);
+    font-weight: 500;
+  }
 }
 
 .auth{
@@ -137,13 +155,32 @@ body {
 
   .auth-button{
     @include buttonStyles;
-    color: white;
     background-color: transparent;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    p{
+      font-size: 15px;
+      font-family: var(--main-font);
+      font-weight: 500;
+    }
   }
 
   .guest-button{
     @include buttonStyles;
-    background-color: var(--purple);;
+  background-color: var(--purple); // bg-blue-500 color in Tailwind
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  p{
+    font-size: 15px;
+    font-family: var(--main-font);
+    font-weight: 500;
+  }
   }
 }
 

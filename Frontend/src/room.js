@@ -14,6 +14,7 @@ let requestNumber = 0;
 const playerRequests = [];
 const playerSpeed = 15;
 const t = 0.05;
+let activeParticles = [];
 let hostId = "";
 let roomId = "";
 
@@ -82,7 +83,8 @@ joinRoomBtn.addEventListener("click", () => {
 createRoomModalButton.addEventListener("click", (e) => {
   e.stopPropagation();
   isCreateRoomModalOpen = false;
-  roomId = createRoomModalInput.value;
+  roomId = createRoomModalInput.value.trim('');
+  if(!roomId) return alert('Please enter a room id');
   const playerName = user.name ? user.name : 'Guest';
   socket.emit("createRoom", roomId, playerName);
   handleCreateRoomModalVisibility();
@@ -92,6 +94,7 @@ joinRoomModalButton.addEventListener("click", (e) => {
   e.stopPropagation();
   isJoinRoomModalOpen = false;
   roomId = joinRoomModalInput.value.trim('');
+  if(!roomId) return alert('Please enter a room id');
   const playerName = user.name ? user.name : 'Guest';
   socket.emit("joinRoom", roomId, playerName);
   
@@ -215,12 +218,18 @@ socket.on("updatedPlayersGameState", (players) => {
 
 socket.on("playerHit", (playerId) => {
   if(frontendPlayers[playerId]) {
+    
+    activeParticles = createParticles(frontendPlayers[playerId].x, frontendPlayers[playerId].y);
     delete frontendPlayers[playerId];
-    if(playerId === socket.id) {
-      roomId = '';
-      gameStarted = false;
-      gameOverOverlay.style.display = 'flex';
-    }
+
+    setTimeout(() => {
+      if(playerId === socket.id) {
+        roomId = '';
+        gameStarted = false;
+        gameOverOverlay.style.display = 'flex';
+        gameOverText.textContent = 'You fought bravely but the enemy was too strong. Better luck next time!';
+      }
+    }, 2000);
   }
 });
 
@@ -332,6 +341,8 @@ function animate() {
     const bullet = frontendBullets[id];
     drawBullet(bullet);
   }
+
+  activeParticles = animateParticles(activeParticles);
 }
 
 function drawPlayer({ x, y, radius, color, playerName }) {
@@ -357,3 +368,36 @@ function drawBullet({ x, y, radius, color }) {
   ctx.fill();
   ctx.closePath();
 }
+
+function createParticles(x, y){
+  let particles = [];
+  for(let i = 0; i < 20; i++){
+       particles.push({
+            x,
+            y,
+            color: `hsl(${Math.random() * 360}, ${100}%, ${50}%)`,
+            radius: Math.random() * 5,
+            velocityX: Math.random() * 5 - 2.5,
+            velocityY: Math.random() * 5 - 2.5,
+            lifeSpan: 50,
+        })
+       }
+
+       return particles;
+  }
+
+  function animateParticles(particles){
+       particles.forEach((particle, index) => {
+        particle.x += particle.velocityX;
+        particle.y += particle.velocityY;
+        particle.lifeSpan -= 1;
+
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.radius, 0, 2 * Math.PI, false);
+        ctx.fillStyle = particle.color;
+        ctx.fill();
+        ctx.closePath();
+       });
+
+       return particles.filter(particle => particle.lifeSpan > 0);
+  }
