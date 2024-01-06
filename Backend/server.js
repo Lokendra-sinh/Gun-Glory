@@ -4,7 +4,7 @@ import { Server } from "socket.io";
 import { initiateSocketLogic } from './services/socketLogic.js'
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { initiateMongooseConnection } from "./Config/initializeMongoose.js";
+import { initiateMongooseConnection } from "./config/initializeMongoose.js";
 import dotenv from "dotenv";
 import { validateUserDetails } from './middlewares/Register/validateUserDetails.js'
 import { hashUserPassword } from './middlewares/Register/hashUserPassword.js'
