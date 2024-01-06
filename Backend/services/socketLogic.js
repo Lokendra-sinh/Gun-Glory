@@ -194,6 +194,8 @@ function initiateSocketLogic(io) {
             const currentPlayer = roomPlayers[playerId];
 
             if(currentPlayer.hit){
+              io.in(room).emit("playerHit", playerId);
+              io.sockets.sockets.get(playerId).leave(room);
               playersToRemove.push(playerId);
               continue;
             }
@@ -252,8 +254,8 @@ function initiateSocketLogic(io) {
     
               if (DISTANCE < 5 + backEndPlayer.radius && currentBullet.playerId !== playerId) {
                 roomPlayers[playerId].hit = true;
-                io.in(room).emit("playerHit", playerId);
-                io.sockets.sockets.get(playerId).leave(room);
+                // io.in(room).emit("playerHit", playerId, currentBullet.bulletId);
+                // io.sockets.sockets.get(playerId).leave(room);
                 bulletHit = true;
                 break;
               }
