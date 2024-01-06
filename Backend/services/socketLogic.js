@@ -1,97 +1,80 @@
-import { set } from "mongoose";
-
 
 function initiateSocketLogic(io) {
   const rooms = {};
-  const backendPlayers = {};
-  const backendBullets = {};
-  const bulletSpeed = 10;
-const playerSpeed = 10;
-const bulletRadius = 5;
-const playerRadius = 10;
-let bulletId = 0;
+  const playerRoomMap = {};
+  const bulletSpeed = 3;
+  const playerSpeed = 10;
+  const bulletRadius = 5;
+  const playerRadius = 10;
+  let bulletId = 0;
 
   io.on("connection", (socket) => {
     console.log("inside connection");
-    let currentRoom = "";
 
-    socket.on("createRoom", (roomId) => {
-
+    socket.on("createRoom", (roomId, playerName) => {
       const existingRooms = io.sockets.adapter.rooms;
-        if (existingRooms.has(roomId)) {
-            socket.emit("roomError", { message: "The room already exists. Either join the room or create a new one" });
-            return;
-        }
+      if (existingRooms.has(roomId)) {
+        socket.emit("roomError", {
+          message:
+            "The room already exists. Either join the room or create a new one",
+        });
+        return;
+      }
+
+      if (!rooms[roomId]) rooms[roomId] = {};
+      if (!rooms[roomId]["players"]) rooms[roomId]["players"] = {};
+      if (!rooms[roomId] && rooms[roomId]["gameStarted"])
+        rooms[roomId]["gameStarted"] = false;
+
       socket.join(roomId);
-      currentRoom = roomId;
+      playerRoomMap[socket.id] = roomId;
 
-      if (!backendPlayers[roomId]) {
-        backendPlayers[roomId] = {};
-      }
+      const backendPlayer = initializePlayer(socket.id, playerName);
 
-      if (!backendBullets[roomId]) {
-        backendBullets[roomId] = {};
-      }
-
-      backendPlayers[roomId][socket.id] = {
-        x: Math.floor(Math.random() * 1024),
-        y: Math.floor(Math.random() * 576),
-        color: `hsl(${Math.random() * 360}, ${100}%, ${50}%)`,
-        radius: playerRadius,
-        requestNumber: 0,
-        playerId: socket.id,
-      };
+      rooms[roomId]["players"][socket.id] = backendPlayer;
 
       socket.emit("roomCreated", roomId);
-      socket.emit("playerCreated", backendPlayers[roomId][socket.id]);
+      socket.emit("playerCreated", backendPlayer);
     });
 
-    socket.on("joinRoom", (roomId) => {
-      const availablerooms = io.sockets.adapter.rooms;
-      if (!availablerooms.has(roomId)) {
-        socket.emit("roomError", { message: "The room does not exist." });
+    socket.on("joinRoom", (roomId, playerName) => {
+      if (!rooms[roomId]) {
+        socket.emit("roomError", { message: "The room does not exist!" });
         return;
       }
 
-      if(rooms[roomId] && rooms[roomId]["gameStarted"]){
-        socket.emit("roomError", { message: "The game has already started in this room." });
+      if (rooms[roomId] && rooms[roomId]["gameStarted"]) {
+        socket.emit("roomError", {
+          message: "The game has already started in this room.",
+        });
         return;
       }
 
-      if(availablerooms.get(roomId).size >= 5){
-        socket.emit("roomError", { message: "The room is full but you can join another room"});
+      if (Object.keys(rooms[roomId]["players"]).length >= 4) {
+        socket.emit("roomError", {
+          message: "The room is full. Try joining another room",
+        });
         return;
       }
-
-      if (backendPlayers[roomId][socket.id]) {
-        socket.emit("roomError", { message: "A player with this ID already exists in the room." });
-        return;
-      }
-
-
 
       socket.join(roomId);
-      currentRoom = roomId;
-      backendPlayers[roomId][socket.id] = {
-        x: Math.floor(Math.random() * 1024),
-        y: Math.floor(Math.random() * 576),
-        color: `hsl(${Math.random() * 360}, ${100}%, ${50}%)`,
-        radius: playerRadius,
-        requestNumber: 0,
-        playerId: socket.id,
-      };
+      playerRoomMap[socket.id] = roomId;
+      const backendPlayer = initializePlayer(socket.id, playerName);
+
+      rooms[roomId]["players"][socket.id] = backendPlayer;
 
       socket.emit("roomJoined", roomId);
-      console.log("backendPlayers[roomId]: ", backendPlayers[roomId]);
-      socket.emit("existingPlayers", backendPlayers[roomId]);
-      socket.to(roomId).emit("newPlayer", backendPlayers[roomId][socket.id]);
+      socket.emit("existingPlayers", rooms[roomId]["players"]);
+      socket.to(roomId).emit("newPlayer", backendPlayer);
     });
 
     socket.on("gameStarted", (roomId) => {
-      if(rooms[roomId] && rooms[roomId]["gameStarted"]){
-        socket.emit("roomError", { message: "The game has already started in this room." });
+      if (rooms[roomId] && rooms[roomId]["gameStarted"]) {
+        socket.emit("roomError", {
+          message: "The game has already started in this room.",
+        });
       } else {
-        rooms[roomId] = {gameStarted: true};
+        rooms[roomId]["gameStarted"] = true;
         io.in(roomId).emit("gameStarted", roomId);
       }
     });
@@ -99,226 +82,225 @@ let bulletId = 0;
     socket.on("leaveRoom", (roomId) => {
       io.in(roomId).emit("playerLeftTheRoom", socket.id);
       socket.leave(roomId);
-      if(backendPlayers[roomId]){
-        delete backendPlayers[roomId][socket.id];
+      if (rooms[roomId]["players"][socket.id]) {
+        delete rooms[roomId]["players"][socket.id];
       }
-
     });
 
     socket.on("deleteRoom", (roomId) => {
-      const playersInRoom = io.sockets.adapter.rooms.get(roomId);
-      if(playersInRoom){
-
+      if (rooms[roomId]) {
         io.in(roomId).emit("roomDeleted", roomId);
-        playersInRoom.forEach((playerId) => {
+
+        for (let playerId in rooms[roomId]["players"]) {
           io.sockets.sockets.get(playerId).leave(roomId);
-        })
+        }
+
+        delete rooms[roomId];
+      } else {
+        socket.emit("roomError", { message: "The room does not exist" });
       }
-
-      delete rooms[roomId];
-      delete backendPlayers[roomId];
-      delete backendBullets[roomId];
-
     });
 
     socket.on("gameStopped", (roomId) => {
-      if(rooms[roomId] && rooms[roomId]["gameStarted"]){
-        rooms[roomId] = {gameStarted: true};
+      if (rooms[roomId] && rooms[roomId]["gameStarted"]) {
+        rooms[roomId] = { gameStarted: true };
         delete backendPlayers[roomId];
       } else {
-        socket.emit("roomError", { message: "The room does not exist"});
+        socket.emit("roomError", { message: "The room does not exist" });
       }
     });
-    socket.on("keydown", (keycode, requestNumber) => {
-        backendPlayers[currentRoom][socket.id].requestNumber = requestNumber;
-        switch (keycode) {
-          case "ArrowUp":
-            backendPlayers[currentRoom][socket.id].y -= playerSpeed;
-            break;
-          case "ArrowDown":
-            backendPlayers[currentRoom][socket.id].y += playerSpeed;
-            break;
-          case "ArrowLeft":
-            backendPlayers[currentRoom][socket.id].x -= playerSpeed;
-            break;
-          case "ArrowRight":
-            backendPlayers[currentRoom][socket.id].x += playerSpeed;
-            break;
-        }
-      });
+    socket.on("keydown", (keycode, roomId) => {
 
-    socket.on("addBullet", ({ x, y, angle }) => {
-        bulletId++;
-        const velocity = {
-            x: Math.cos(angle) * bulletSpeed,
-            y: Math.sin(angle) * bulletSpeed,
-        };
-        const updatedBullet = {
-            x: x,
-            y: y,
-            angle: angle,
-            radius: bulletRadius,
-            color: backendPlayers[currentRoom][socket.id]?.color,
-            velocity: velocity,
-            playerId: socket.id,
-        };
-    
-        backendBullets[currentRoom][bulletId] = updatedBullet;
-        console.log(backendBullets);
-    });  
+      if (!rooms[roomId]) return;
+      if (!rooms[roomId]["players"][socket.id]) return;
+
+      switch (keycode) {
+        case "ArrowUp":
+          console.log("inside arrow up");
+          rooms[roomId]["players"][socket.id].y -= playerSpeed;
+          break;
+        case "ArrowDown":
+          console.log("inside arrow down");
+          rooms[roomId]["players"][socket.id].y += playerSpeed;
+          break;
+        case "ArrowLeft":
+          rooms[roomId]["players"][socket.id].x -= playerSpeed;
+          break;
+        case "ArrowRight":
+          rooms[roomId]["players"][socket.id].x += playerSpeed;
+          break;
+      }
+
+      io.in(roomId).emit("updatedPlayersGameState", rooms[roomId]["players"]);
+    });
+
+    socket.on("addBullet", ({ x, y, angle, roomId }) => {
+  
+      const velocity = {
+        x: Math.cos(angle) * bulletSpeed,
+        y: Math.sin(angle) * bulletSpeed,
+      };
+      const updatedBullet = initializeBullet(
+        x,
+        y,
+        angle,
+        velocity,
+        roomId,
+        socket.id,
+      );
+
+      if (!rooms[roomId]["bullets"]) rooms[roomId]["bullets"] = [];
+      rooms[roomId]["bullets"].push(updatedBullet);
+      // io.in(roomId).emit("newBullet", updatedBullet);
+    });
 
     socket.on("disconnect", () => {
-      console.log("inside disconnect");
-      if (currentRoom && backendPlayers[currentRoom][socket.id]) {
-        delete backendPlayers[currentRoom][socket.id];
-        socket.to(currentRoom).emit("playerLeft", socket.id);
-      }
+      const roomId = playerRoomMap[socket.id]; 
+        if(rooms[roomId] && rooms[roomId]["players"] && rooms[roomId]["players"][socket.id]){
+          socket.to(roomId).emit("playerLeftTheRoom", socket.id);
+          delete rooms[roomId]["players"][socket.id];
+
+          if(Object.keys(rooms[roomId]["players"]).length === 0){
+            delete rooms[roomId];
+          }
+        }
+
+        delete playerRoomMap[socket.id];
+      
     });
 
     setInterval(() => {
-        if(backendPlayers[currentRoom] && Object.keys(backendPlayers[currentRoom]).length > 0){
-            io.in(currentRoom).emit("gameState", backendPlayers[currentRoom]);
+
+      updatePlayers();
+      updateBullets();
+
+    }, 1000 / 60);
+
+    function updatePlayers(){
+      if(Object.keys(rooms).length === 0) return;
+      for(const room in rooms){
+        if(rooms[room]['gameStarted'] === false) continue;
+        const roomPlayers = rooms[room]['players'];
+        if(!roomPlayers) continue;
+        if(Object.keys(roomPlayers).length === 1 && rooms[room]['gameStarted'] === true){
+          io.in(room).emit("playerWon", roomPlayers[Object.keys(roomPlayers)[0]].playerId);
+          io.sockets.sockets.get(Object.keys(roomPlayers)[0]).leave(room);
+          delete rooms[room];
+          continue;
         }
-    
-        if(backendBullets[currentRoom] && Object.keys(backendBullets[currentRoom]).length > 0){
-            updateBulletsPosition();
-            io.in(currentRoom).emit("updateBullets", backendBullets[currentRoom]);
-        };
-        
-    }, 1000/60);
+        const playersToRemove = [];
+        if(roomPlayers){
+          for(const playerId in roomPlayers){
+            const currentPlayer = roomPlayers[playerId];
 
-    function lerp(start, end, t) {
-      return start + (end - start) * t;
-    }
+            if(currentPlayer.hit){
+              playersToRemove.push(playerId);
+              continue;
+            }
 
-    function updateBulletsPosition() {
-        for (const bulletId in backendBullets[currentRoom]) {
-            backendBullets[currentRoom][bulletId].x += backendBullets[currentRoom][bulletId].velocity.x;
-            backendBullets[currentRoom][bulletId].y += backendBullets[currentRoom][bulletId].velocity.y;
-
-          //boundary detection
-    
-          if (
-            backendBullets[currentRoom][bulletId].x >= 1024 ||
-            backendBullets[currentRoom][bulletId].x <= 10 ||
-            backendBullets[currentRoom][bulletId].y >= 590 ||
-            backendBullets[currentRoom][bulletId].y <= 5
-          ) {
-            delete backendBullets[currentRoom][bulletId];
-            continue;
-          }
-    
-          //player and bullet collision detection
-    
-          for (const playerId in backendPlayers[currentRoom]) {
-            const backEndPlayer = backendPlayers[currentRoom][playerId];
-    
-            const DISTANCE = Math.hypot(
-              backendBullets[currentRoom][bulletId].x - backEndPlayer.x,
-              backendBullets[currentRoom][bulletId].y - backEndPlayer.y
-            );
-    
-            //player Bullet collision detection
-            if (
-              DISTANCE < 5 + backEndPlayer.radius &&
-              backendBullets[currentRoom][bulletId].playerId !== playerId
-            ) {
-              delete backendBullets[currentRoom][bulletId];
-              delete backendPlayers[currentRoom][playerId];
-              break;
+            if (currentPlayer.x > 1014) {
+              currentPlayer.x = 1014;
+            }
+            if (currentPlayer.x < 10) {
+              currentPlayer.x = 10;
+            }
+            if (currentPlayer.y > 566) {
+              currentPlayer.y = 566;
+            }
+            if (currentPlayer.y < 10) {
+              currentPlayer.y = 10;
             }
           }
+
+          for(const playerId of playersToRemove){
+            delete roomPlayers[playerId];
+          }
         }
+
+        io.in(room).emit("updatedPlayersGameState", roomPlayers);
       }
-    });
+    }
+
+    function updateBullets() {
+      if (Object.keys(rooms).length === 0) return;
+      for (const room in rooms) {
+        let roomBullets = rooms[room]['bullets'];
+        let newBullets = [];
+        if (roomBullets) {
+    
+          for (let i = 0; i < roomBullets.length; i++) {
+            const currentBullet = roomBullets[i];
+            currentBullet.x += currentBullet.velocity.x;
+            currentBullet.y += currentBullet.velocity.y;
+    
+            // Boundary detection for bullet removal
+            if (currentBullet.x < 0 || currentBullet.x > 1024 || currentBullet.y < 0 || currentBullet.y > 590) {
+              continue; // Skip adding this bullet to newBullets
+            }
+    
+            // Player and bullet collision detection
+            const roomPlayers = rooms[room]['players'];
+            let bulletHit = false;
+    
+            for (const playerId in roomPlayers) {
+              const backEndPlayer = roomPlayers[playerId];
+    
+              const DISTANCE = Math.hypot(
+                currentBullet.x - backEndPlayer.x,
+                currentBullet.y - backEndPlayer.y
+              );
+    
+              if (DISTANCE < 5 + backEndPlayer.radius && currentBullet.playerId !== playerId) {
+                roomPlayers[playerId].hit = true;
+                io.in(room).emit("playerHit", playerId);
+                io.sockets.sockets.get(playerId).leave(room);
+                bulletHit = true;
+                break;
+              }
+            }
+    
+            if (!bulletHit) {
+              newBullets.push(currentBullet);
+            }
+          }
+    
+          rooms[room]['bullets'] = newBullets;
+        }
+    
+        io.in(room).emit("updatedBulletsGameState", rooms[room]['bullets']);
+      }
+    }
+    
+
+  });
+
+  function initializePlayer(playerId, playerName) {
+    return {
+      x: Math.floor(Math.random() * 1024),
+      y: Math.floor(Math.random() * 576),
+      color: `hsl(${Math.random() * 360}, ${100}%, ${50}%)`,
+      radius: 10,
+      requestNumber: 0,
+      playerId: playerId,
+      playerName: playerName,
+      hit: false,
+    };
+  }
+  
+  function initializeBullet(x, y, angle, velocity, roomId, socketId) {
+    bulletId++;
+    return {
+      x: x,
+      y: y,
+      angle: angle,
+      radius: bulletRadius,
+      color: rooms[roomId]["players"][socketId]?.color,
+      velocity: velocity,
+      playerId: socketId,
+      bulletId: bulletId,
+    };
+  }
+
 }
-
-
-
-//   io.on("connect", (socket) => {
-//     console.log("inside connect");
-
-//     backendPlayers[socket.id] = {
-//       x: Math.floor(Math.random() * 1024),
-//       y: Math.floor(Math.random() * 576),
-//       color: `hsl(${Math.random() * 360}, ${100}%, ${50}%)`,
-//       radius: 10,
-//       requestNumber: 0,
-//     };
-
-//     io.emit("updateFrontendPlayers", backendPlayers);
-
-//     socket.on("addBullet", ({ x, y, angle }) => {
-//       bulletId++;
-//       const velocity = {
-//         x: Math.cos(angle) * bulletSpeed,
-//         y: Math.sin(angle) * bulletSpeed,
-//       };
-//       const updatedBullet = {
-//         x: x,
-//         y: y,
-//         angle: angle,
-//         radius: bulletRadius,
-//         color: backendPlayers[socket.id]?.color,
-//         velocity: velocity,
-//         playerId: socket.id,
-//       };
-
-//       backendBullets[bulletId] = updatedBullet;
-//       console.log(backendBullets);
-//     });
-
-
-
-//   function updateBulletsPosition() {
-//     for (const bulletId in backendBullets) {
-//       backendBullets[bulletId].x += backendBullets[bulletId].velocity.x;
-//       backendBullets[bulletId].y += backendBullets[bulletId].velocity.y;
-
-//       //boundary detection
-
-//       if (
-//         backendBullets[bulletId].x >= 1024 ||
-//         backendBullets[bulletId].x <= 10 ||
-//         backendBullets[bulletId].y >= 590 ||
-//         backendBullets[bulletId].y <= 5
-//       ) {
-//         delete backendBullets[bulletId];
-//         continue;
-//       }
-
-//       //player and bullet collision detection
-
-//       for (const playerId in backendPlayers) {
-//         const backEndPlayer = backendPlayers[playerId];
-
-//         const DISTANCE = Math.hypot(
-//           backendBullets[bulletId].x - backEndPlayer.x,
-//           backendBullets[bulletId].y - backEndPlayer.y
-//         );
-
-//         //player Bullet collision detection
-//         if (
-//           DISTANCE < 5 + backEndPlayer.radius &&
-//           backendBullets[bulletId].playerId !== playerId
-//         ) {
-//           delete backendBullets[bulletId];
-//           delete backendPlayers[playerId];
-//           break;
-//         }
-//       }
-//     }
-//   }
-
-//   setInterval(() => {
-//     if (Object.keys(backendBullets).length > 0) {
-//       updateBulletsPosition();
-//       io.emit("updateBullets", backendBullets);
-//     }
-//     if (Object.keys(backendPlayers).length > 0) {
-//       io.emit("updateFrontendPlayers", backendPlayers);
-//     }
-//   }, 1000 / 60);
-// }
 
 export { initiateSocketLogic };
