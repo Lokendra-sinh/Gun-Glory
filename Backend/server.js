@@ -51,14 +51,11 @@ app.post("/login", verifyToken, (req, res, next) => {
 })
 
 app.use((err, req, res, next) => {
-  console.log("error is: ", err);
   res.status(500).json({ errors: err });
 });
 
 app.listen(4000, () => {
-  console.log("express server running at 4000");
 });
 
 httpServer.listen(3000, () => {
-  console.log("http server is running");
 });
