@@ -18,13 +18,13 @@ const httpServer = createServer(app);
 const PORT = process.env.PORT || 3000;
 const io = new Server(httpServer, {
   cors: {
-    origin: "https://gun-glory-absn2kvc8-lokendra-sinh.vercel.app/",
+    origin: "https://gun-glory.vercel.app/",
   },
 });
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://gun-glory-absn2kvc8-lokendra-sinh.vercel.app/",
+    origin: "https://gun-glory.vercel.app/",
   })
 );
 app.use(cookieParser());
@@ -38,7 +38,7 @@ app.get("/", (req, res, next) => {
 });
 
 app.post(
-  "/register",
+  '/register',
   validateUserDetails,
   hashUserPassword,
   addUserToDatabase,
@@ -51,7 +51,7 @@ app.post(
 app.post('/verify-email', verifyUserEmail, createJsonToken, (req, res, next) => {
 })
 
-app.post("/login", verifyToken, (req, res, next) => {
+app.post('/login', verifyToken, (req, res, next) => {
 })
 
 app.use((err, req, res, next) => {
