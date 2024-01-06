@@ -17,13 +17,13 @@ const app = express();
 const httpServer = createServer();
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "https://gun-glory-absn2kvc8-lokendra-sinh.vercel.app/",
   },
 });
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://gun-glory-absn2kvc8-lokendra-sinh.vercel.app/",
   })
 );
 app.use(cookieParser());
