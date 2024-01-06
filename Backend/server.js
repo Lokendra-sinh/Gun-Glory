@@ -15,6 +15,7 @@ import { verifyToken } from './middlewares/Login/verifyToken.js'
 
 const app = express();
 const httpServer = createServer();
+const PORT = process.env.PORT || 4000;
 const io = new Server(httpServer, {
   cors: {
     origin: "https://gun-glory-absn2kvc8-lokendra-sinh.vercel.app/",
@@ -57,8 +58,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ errors: err });
 });
 
-app.listen(4000, () => {
-});
-
-httpServer.listen(3000, () => {
+httpServer.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
