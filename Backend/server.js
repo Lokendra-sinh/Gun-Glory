@@ -14,7 +14,7 @@ import { verifyUserEmail } from './middlewares/EmailVerification/verifyUserEmail
 import { verifyToken } from './middlewares/Login/verifyToken.js'
 
 const app = express();
-const httpServer = createServer();
+const httpServer = createServer(app);
 const PORT = process.env.PORT || 3000;
 const io = new Server(httpServer, {
   cors: {
@@ -56,10 +56,6 @@ app.post("/login", verifyToken, (req, res, next) => {
 
 app.use((err, req, res, next) => {
   res.status(500).json({ errors: err });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
 });
 
 httpServer.listen(PORT, () => {
