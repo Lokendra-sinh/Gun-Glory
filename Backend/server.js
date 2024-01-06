@@ -32,6 +32,9 @@ dotenv.config();
 initiateSocketLogic(io);
 initiateMongooseConnection();
 
+app.get("/", (req, res, next) => {
+  res.status(200).send("hello world");
+});
 
 app.post(
   "/register",
