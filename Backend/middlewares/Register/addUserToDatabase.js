@@ -1,7 +1,7 @@
 import {
   UserModel,
   VerificationTokenModel,
-} from "../../Config/mongooseSchemas.js";
+} from "../../config/mongooseSchemas.js";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 

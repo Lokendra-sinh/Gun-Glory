@@ -1,4 +1,4 @@
-import { VerificationTokenModel, UserModel } from "../../Config/mongooseSchemas.js";
+import { VerificationTokenModel, UserModel } from "../../config/mongooseSchemas.js";
 
 async function verifyUserEmail(req, res, next){
     console.log("inside verify user email");

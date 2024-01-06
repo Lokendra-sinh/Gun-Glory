@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { UserModel } from '../../Config/mongooseSchemas.js';
+import { UserModel } from '../../config/mongooseSchemas.js';
 
 
 
