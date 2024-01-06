@@ -21,15 +21,22 @@ function initiateSocketLogic(io) {
         return;
       }
 
-      if (!rooms[roomId]) rooms[roomId] = {};
-      if (!rooms[roomId]["players"]) rooms[roomId]["players"] = {};
-      if (!rooms[roomId] && rooms[roomId]["gameStarted"])
-        rooms[roomId]["gameStarted"] = false;
+      if (!rooms[roomId]){
+        rooms[roomId] = {
+        players: {},
+        bullets: [],
+        gameStarted: false,
+        gameOver: false,
+        hostId: socket.id,
+        }
+      }
+    
+  
 
       socket.join(roomId);
       playerRoomMap[socket.id] = roomId;
-
-      const backendPlayer = initializePlayer(socket.id, playerName);
+     console.log(rooms[roomId].hostId);
+      const backendPlayer = initializePlayer(socket.id, playerName, roomId);
 
       rooms[roomId]["players"][socket.id] = backendPlayer;
 
@@ -59,7 +66,7 @@ function initiateSocketLogic(io) {
 
       socket.join(roomId);
       playerRoomMap[socket.id] = roomId;
-      const backendPlayer = initializePlayer(socket.id, playerName);
+      const backendPlayer = initializePlayer(socket.id, playerName, roomId);
 
       rooms[roomId]["players"][socket.id] = backendPlayer;
 
@@ -81,10 +88,11 @@ function initiateSocketLogic(io) {
 
     socket.on("leaveRoom", (roomId) => {
       io.in(roomId).emit("playerLeftTheRoom", socket.id);
-      socket.leave(roomId);
       if (rooms[roomId]["players"][socket.id]) {
         delete rooms[roomId]["players"][socket.id];
+        socket.leave(roomId);
       }
+
     });
 
     socket.on("deleteRoom", (roomId) => {
@@ -276,7 +284,7 @@ function initiateSocketLogic(io) {
 
   });
 
-  function initializePlayer(playerId, playerName) {
+  function initializePlayer(playerId, playerName, roomId) {
     return {
       x: Math.floor(Math.random() * 1024),
       y: Math.floor(Math.random() * 576),
@@ -284,6 +292,7 @@ function initiateSocketLogic(io) {
       radius: 10,
       requestNumber: 0,
       playerId: playerId,
+      host: rooms[roomId]["hostId"] === playerId ? true : false,
       playerName: playerName,
       hit: false,
     };

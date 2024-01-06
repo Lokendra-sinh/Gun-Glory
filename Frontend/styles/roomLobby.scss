@@ -140,6 +140,11 @@
         color: #ffffff;
         cursor: pointer;
 
+        &.nonHostCursor {
+            cursor: url('../assets/cursor_resized.png'), auto;
+            opacity: 0.5;
+          }
+
         &:hover{
             background-color: #111827;
         }

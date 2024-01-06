@@ -15,8 +15,8 @@ const playerRequests = [];
 const playerSpeed = 15;
 const t = 0.05;
 let activeParticles = [];
-let hostId = "";
 let roomId = "";
+let hostId = socket.id;
 
 
 function clearExistingPlayersList() {
@@ -27,10 +27,11 @@ function renderNewPlayersList() {
 
   for (const id in frontendPlayers) {
     const playerRow = document.createElement("div");
+    console.log("frontendPlayers[id]: ", frontendPlayers[id]);
     playerRow.classList.add("player-row");
     playerRow.innerHTML = `
-    <p class="player-name">${id}</p>
-    <p class="player-role">${socket.id === id ? 'Host' : 'Player'}</p>
+    <p class="player-name">${frontendPlayers[id].playerName}</p>
+    <p class="player-role">${frontendPlayers[id].host ? 'Host' : 'Player'}</p>
     `;
     playersContainer.appendChild(playerRow);
   }
@@ -59,6 +60,17 @@ function displayRoomError(error) {
   roomErrorText.textContent = error.message;
 };
 
+function updateGameStartButtonState() {
+  if (hostId !== socket.id) {
+    roomLobbyStartButton.classList.add('nonHostCursor');
+    roomLobbyStartButton.disabled = true;
+  } else {
+    roomLobbyStartButton.classList.remove('nonHostCursor');
+    roomLobbyStartButton.disabled = false;
+  }
+}
+
+
 roomErrorButton.addEventListener("click", () => {
   roomErrorOverlay.style.display = "none";
   joinRoomModalInput.value = "";
@@ -84,9 +96,11 @@ createRoomModalButton.addEventListener("click", (e) => {
   e.stopPropagation();
   isCreateRoomModalOpen = false;
   roomId = createRoomModalInput.value.trim('');
+  hostId = socket.id;
   if(!roomId) return alert('Please enter a room id');
   const playerName = user.name ? user.name : 'Guest';
   socket.emit("createRoom", roomId, playerName);
+  updateGameStartButtonState();
   handleCreateRoomModalVisibility();
 });
 
@@ -97,6 +111,7 @@ joinRoomModalButton.addEventListener("click", (e) => {
   if(!roomId) return alert('Please enter a room id');
   const playerName = user.name ? user.name : 'Guest';
   socket.emit("joinRoom", roomId, playerName);
+  updateGameStartButtonState();
   
 });
 
@@ -111,7 +126,9 @@ roomLobbyLeaveButton.addEventListener("click", (e) => {
 
 roomLobbyStartButton.addEventListener("click", (e) => {
   e.stopPropagation();
-  if(hostId !== socket.id) return alert('Only host can start the game');
+  if(hostId !== socket.id){
+    room
+  }
   // if(Object.keys(frontendPlayers).length < 2) return alert('Atleast 2 players are required to start the game');
   socket.emit("gameStarted", roomId);
   // roomLobbyOverlay.style.display = "none";
@@ -229,19 +246,21 @@ socket.on("playerHit", (playerId) => {
         gameOverOverlay.style.display = 'flex';
         gameOverText.textContent = 'You fought bravely but the enemy was too strong. Better luck next time!';
       }
-    }, 2000);
+    }, 1500);
   }
 });
 
 socket.on("playerWon", (playerId) => {
   if(frontendPlayers[playerId]) {
     delete frontendPlayers[playerId];
-    if(playerId === socket.id) {
-      roomId = '';
-      gameStarted = false;
-      gameOverOverlay.style.display = 'flex';
-      gameOverText.textContent = 'Congratulations. You Won!';
-    }
+    setTimeout(() => {
+      if(playerId === socket.id) {
+        roomId = '';
+        gameStarted = false;
+        gameOverOverlay.style.display = 'flex';
+        gameOverText.textContent = 'Congratulations. You Won!';
+      }
+    }, 1500);
   }
 });
 
@@ -401,3 +420,11 @@ function createParticles(x, y){
 
        return particles.filter(particle => particle.lifeSpan > 0);
   }
+
+  // window.addEventListener('resize', () => {
+  //   const oldWidth = canvas.width;
+  //   const oldHeight = canvas.height;
+  //   canvas.width = window.innerWidth;
+  //   canvas.height = window.innerHeight;
+  //   ctx ? ctx.scale(canvas.width / oldWidth, canvas.height / oldHeight) : '';
+  // });
