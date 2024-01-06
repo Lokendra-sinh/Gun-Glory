@@ -7,9 +7,11 @@ const joinRoomBtn = document.querySelector('.join-room-button');
 const createRoomModal = document.querySelector('.create-room-modal');
 const createRoomModalButton = document.querySelector('.create-room-modal-button');
 const createRoomModalInput = document.querySelector('.create-room-modal-input');
+const closeCreateRoomModalButton = document.querySelector('.close-create-room-modal-button');
 const joinRoomModal = document.querySelector('.join-room-modal');
 const joinRoomModalButton = document.querySelector('.join-room-modal-button');
 const joinRoomModalInput = document.querySelector('.join-room-modal-input');
+const closeJoinRoomModalButton = document.querySelector('.close-join-room-modal-button');
 
 
 const roomLobbyOverlay = document.querySelector('.room-lobby-overlay');
@@ -19,6 +21,19 @@ const roomLobbyLeaveButton = document.querySelector('.room-lobby-leave-button');
 const roomLobbyStartButton = document.querySelector('.room-lobby-start-button');
 
 const playersContainer = document.querySelector('.players-container');
+
+//room error modal and elements
+
+const roomErrorOverlay = document.querySelector('.room-error-overlay');
+const roomErrorText = document.querySelector('.room-error-text');
+const roomErrorButton = document.querySelector('.room-error-button');
+
+//game over modal and elements
+
+const gameOverOverlay = document.querySelector('.game-over-overlay');
+const gameOverModal = document.querySelector('.game-over-modal');
+const gameOverText = document.querySelector('.game-over-text');
+const gameOverCloseButton = document.querySelector('.game-over-close-button');
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext("2d");
@@ -31,7 +46,6 @@ let isWelcomeModalOpen = false;
 let isCreateRoomModalOpen = false;
 let isJoinRoomModalOpen = false;
 
-let roomId = '';
 let gameStarted = false;
 let userLoggedIn = false;
 
@@ -52,6 +66,16 @@ modalGuestButton.addEventListener('click', ()=> {
     isWelcomeModalOpen = false;
     handleWelcomeModalVisibility();
     canvas.style.display = 'flex';
+})
+
+closeCreateRoomModalButton.addEventListener('click', ()=> {
+    createRoomModalInput.value = '';
+    createRoomModal.style.display = 'none';
+})
+
+closeJoinRoomModalButton.addEventListener('click', ()=> {
+    joinRoomModalInput.value = '';
+    joinRoomModal.style.display = 'none';
 })
 
 

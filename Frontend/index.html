@@ -9,7 +9,11 @@
   </head>
   <body>
     <nav class="navbar">
-      <h1 class="logo">GunGlory</h1>
+      <div class="logo">
+        <img src="./assets/gun_logo.png" alt="logo" />
+        <h1 class="logo-title">GunGlory</h1>
+      </div>
+     
 
       <div class="navbar-right-buttons">
         <button class="create-room-button">Create Room</button>
@@ -29,11 +33,14 @@
           Create/join a room and start playing!
         </p>
       </div>
-      <button class="modal-guest-button">Play as a Guest</button>
+      <button class="modal-guest-button">Close</button>
     </div>
 
     <div class="create-room-modal">
-      <h2>Create Room</h2>
+      <div class="close-create-room-modal">
+        <h3>Create Room</h3>
+        <button class="close-create-room-modal-button">x</button>
+      </div>
       <div class="create-room-body">
         <p>Please enter a name for your room:</p>
         <input
@@ -46,7 +53,10 @@
     </div>
 
     <div class="join-room-modal">
-      <h2>Join Room</h2>
+      <div class="close-join-room-modal">
+        <h3>Join Room</h3>
+        <button class="close-join-room-modal-button">x</button>
+      </div>
       <div class="join-room-body">
         <p>Please enter the name of the room you want to join:</p>
         <input class="join-room-modal-input" type="text" placeholder="xyz" />
@@ -169,25 +179,22 @@
       </div>
     </div>
     </div>
-    <!-- <div class="game-over-modal">
+
+    <div class="game-over-overlay">
+    <div class="game-over-modal">
       <h2>Game Over</h2>
       <div class="game-over-body">
-        <p class="game-over-text"></p>
-        <button class="game-over-button">Play Again</button>
+        <p class="game-over-text">You fought bravely but the enemy was too strong. Better luck next time!</p>
+        <button class="game-over-close-button">Close</button>
       </div>
+    </div>
+    </div>
 
-      <div class="game-over-leaderboard">
-        <h3>Leaderboard</h3>
-        <div class="leaderboard-body"></div>
-
-        <button class="leaderboard-button">Close</button>
-      </div>
-    </div> -->
 </div>  
     <canvas id="canvas"></canvas>
     <script defer src="./src/init.js"></script>
-    <script type="module" src="./src/room.js"></script>
-    <script type="module" src="./src/gameLogic.js"></script>
     <script type="module" src="./src/auth.js"></script>
+    <script type="module" src="./src/room.js"></script>
+    <!-- <script type="module" src="./src/gameLogic.js"></script> -->
   </body>
 </html>

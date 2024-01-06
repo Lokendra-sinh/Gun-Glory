@@ -194,11 +194,6 @@ closeEmailVerificationModalButton.addEventListener("click", (event) => {
   handleEmailVerificationModalVisibility();
 });
 
-// formToggleBtn.addEventListener("click", () => {
-//   isSignUpModalOpen = !isSignUpModalOpen;
-// //  handleAuthModalVisibility();
-// });
-
 async function handleUserRegistration(name, email, password) {
   console.log("inside handleUserRgistration");
   try {
