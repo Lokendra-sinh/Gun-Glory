@@ -10,7 +10,7 @@ function initiateSocketLogic(io) {
 
   io.on("connection", (socket) => {
 
-    socket.on("createRoom", (roomId, playerName) => {
+    socket.on("createRoom", (roomId, playerName, sentTime) => {
       const existingRooms = io.sockets.adapter.rooms;
       if (existingRooms.has(roomId)) {
         socket.emit("roomError", {
@@ -38,7 +38,7 @@ function initiateSocketLogic(io) {
 
       rooms[roomId]["players"][socket.id] = backendPlayer;
 
-      socket.emit("roomCreated", roomId);
+      socket.emit("roomCreated", roomId, sentTime);
       socket.emit("playerCreated", backendPlayer);
     });
 
