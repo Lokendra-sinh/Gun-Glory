@@ -178,7 +178,7 @@ function initiateSocketLogic(io) {
       updatePlayers();
       updateBullets();
 
-    }, 25);
+    }, 20);
 
     function updatePlayers(){
       if(Object.keys(rooms).length === 0) return;
