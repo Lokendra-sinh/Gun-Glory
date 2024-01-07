@@ -135,7 +135,7 @@ function initiateSocketLogic(io) {
           break;
       }
 
-      io.in(roomId).emit("updatedPlayersGameState", rooms[roomId]["players"]);
+      io.in(roomId).emit("updatedPlayerState", playerId, rooms[roomId]["players"][socket.id]);
     });
 
     socket.on("addBullet", ({ x, y, angle, roomId }) => {
@@ -178,7 +178,7 @@ function initiateSocketLogic(io) {
       updatePlayers();
       updateBullets();
 
-    }, 20);
+    }, 25);
 
     function updatePlayers(){
       if(Object.keys(rooms).length === 0) return;
