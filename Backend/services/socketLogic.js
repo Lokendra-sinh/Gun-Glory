@@ -9,7 +9,6 @@ function initiateSocketLogic(io) {
   let bulletId = 0;
 
   io.on("connection", (socket) => {
-    console.log("inside connection");
 
     socket.on("createRoom", (roomId, playerName) => {
       const existingRooms = io.sockets.adapter.rooms;
@@ -35,7 +34,6 @@ function initiateSocketLogic(io) {
 
       socket.join(roomId);
       playerRoomMap[socket.id] = roomId;
-     console.log(rooms[roomId].hostId);
       const backendPlayer = initializePlayer(socket.id, playerName, roomId);
 
       rooms[roomId]["players"][socket.id] = backendPlayer;
@@ -124,11 +122,9 @@ function initiateSocketLogic(io) {
 
       switch (keycode) {
         case "ArrowUp":
-          console.log("inside arrow up");
           rooms[roomId]["players"][socket.id].y -= playerSpeed;
           break;
         case "ArrowDown":
-          console.log("inside arrow down");
           rooms[roomId]["players"][socket.id].y += playerSpeed;
           break;
         case "ArrowLeft":
@@ -182,7 +178,7 @@ function initiateSocketLogic(io) {
       updatePlayers();
       updateBullets();
 
-    }, 1000 / 60);
+    }, 100);
 
     function updatePlayers(){
       if(Object.keys(rooms).length === 0) return;
