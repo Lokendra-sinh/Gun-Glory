@@ -18,13 +18,13 @@ const httpServer = createServer(app);
 const PORT = process.env.PORT || 3000;
 const io = new Server(httpServer, {
   cors: {
-    origin: "https://gun-glory.vercel.app/",
+    origin: "https://gun-glory-frontend.vercel.app",
   },
 });
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://gun-glory.vercel.app/",
+    origin: "https://gun-glory-frontend.vercel.app",
   })
 );
 app.use(cookieParser());
