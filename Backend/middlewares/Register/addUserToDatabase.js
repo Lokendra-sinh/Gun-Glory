@@ -4,6 +4,7 @@ import {
 } from "../../config/mongooseSchemas.js";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
+import MongoServerError from "mongodb";
 
 async function addUserToDatabase(req, res, next) {
   console.log("inside addUserTodatabase");
@@ -22,9 +23,8 @@ async function addUserToDatabase(req, res, next) {
     console.log("data added to mongoDB and link sent successfully");
     next();
   } catch (error) {
-    console.log("error while adding user to database: ", error);
-    next(error);
-  }
+    return res.status(409).json({ message: "Email ID already exists"});
+   }
   console.log("outside database");
 }
 
@@ -60,7 +60,8 @@ async function sendEmailVerificationLink(email, verificationToken) {
       to: email,
       subject: "Verify your email address",
       text: "Here's your verification code:",
-      html: `<p>${verificationToken}</p>`,
+      html: `<h1>Here is your verification code for GunGlory</h1>
+              <p>${verificationToken}</p>`,
     };
 
     const mailResponse = await transport.sendMail(mailOptions);

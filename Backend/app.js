@@ -15,18 +15,33 @@ import { verifyToken } from './middlewares/Login/verifyToken.js'
 
 const app = express();
 const httpServer = createServer(app);
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
+
+const allowedOrigins = [
+  "https://gun-glory-frontend.vercel.app",
+  "http://localhost:5173", 
+];
+
 const io = new Server(httpServer, {
   cors: {
-    origin: "https://gun-glory-frontend.vercel.app",
+    origin: allowedOrigins,
   },
 });
+
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://gun-glory-frontend.vercel.app",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
   })
 );
+
+
 app.use(cookieParser());
 dotenv.config();
 
@@ -55,7 +70,13 @@ app.post('/login', verifyToken, (req, res, next) => {
 })
 
 app.use((err, req, res, next) => {
-  res.status(500).json({ errors: err });
+  if(err instanceof Error){
+    if(err.message === "Not allowed by CORS"){
+      return res.status(403).json({message: "Not allowed by CORS"});
+    }
+  }
+  
+  res.status(500).json({ message: err});
 });
 
 httpServer.listen(PORT, () => {
